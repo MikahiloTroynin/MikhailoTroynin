@@ -1,2 +1,0 @@
-# MikhailoTroynin
-Portfolio page
