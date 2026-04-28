@@ -1,0 +1,35 @@
+- label: Authoring
+  items:
+    - Markdown
+    - MDX
+    - AsciiDoc
+    - VS Code
+
+- label: Docs-as-Code
+  items:
+    - GitHub
+    - Jekyll
+    - GitHub Pages
+    - Docusaurus
+    - MkDocs
+
+- label: API
+  items:
+    - OpenAPI
+    - Swagger
+    - Postman
+    - Insomnia
+
+- label: Collaboration
+  items:
+    - Confluence
+    - Jira
+    - Notion
+    - Linear
+
+- label: AI
+  items:
+    - ChatGPT
+    - Claude
+    - GitHub Copilot
+    - Cursor
