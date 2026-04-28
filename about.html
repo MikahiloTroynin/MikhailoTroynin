@@ -1,0 +1,74 @@
+---
+layout: default
+title: About
+permalink: /about/
+---
+<main>
+  <div class="container page-header">
+    <span class="eyebrow">/about</span>
+    <h1>About</h1>
+  </div>
+
+  <section class="container" style="padding-bottom: 80px;">
+    <div class="about-grid">
+      <aside class="profile-card">
+        <div class="avatar">
+          <!-- Replace with your photo: <img src="/assets/images/portrait.jpg" alt="Mykhailo Troynin"> -->
+        </div>
+        <h2>Mykhailo Troynin</h2>
+        <p class="role">AI-assisted Technical Writer</p>
+        <div class="profile-links">
+          <a href="mailto:hello@example.com">
+            <span class="label">Email</span>
+            <span>hello@example.com</span>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener">
+            <span class="label">GitHub</span>
+            <span>github.com ↗</span>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener">
+            <span class="label">LinkedIn</span>
+            <span>linkedin.com ↗</span>
+          </a>
+        </div>
+      </aside>
+
+      <div>
+        <p style="font-size: 1.05rem; color: var(--color-text-muted); line-height: 1.65;">
+          {{ site.data.about.bio }}
+        </p>
+        <p style="font-size: 1.05rem; color: var(--color-text-muted); line-height: 1.65; margin-top: 12px;">
+          {{ site.data.about.bio2 }}
+        </p>
+
+        <h3 style="margin-top: 36px;">Core skills</h3>
+        <div class="skill-chip-grid">
+          {% for skill in site.data.about.core_skills %}
+          <span class="skill-chip">{{ skill }}</span>
+          {% endfor %}
+        </div>
+
+        <h3 style="margin-top: 36px;">Experience summary</h3>
+        <div class="experience-list">
+          {% for exp in site.data.about.experience %}
+          <div class="experience-item">
+            <div class="period">{{ exp.period }}</div>
+            <div>
+              <div class="role">{{ exp.role }}</div>
+              <div class="org">{{ exp.org }}</div>
+              <p>{{ exp.body }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <h3 style="margin-top: 36px;">Engagement models</h3>
+        <div class="skill-chip-grid">
+          {% for item in site.data.about.engagement %}
+          <span class="skill-chip">{{ item }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

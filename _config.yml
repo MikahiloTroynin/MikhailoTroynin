@@ -1,0 +1,65 @@
+# ============================================================
+# M. Troynin — AI Technical Writer Portfolio
+# Jekyll site for GitHub Pages
+# ============================================================
+
+title: "M. Troynin — AI Technical Writer"
+description: "I turn source code into documentation engineers actually read."
+url: "" # set to https://yourusername.github.io before deploy
+baseurl: "" # set to /repo-name if using project pages
+
+author:
+  name: "Mykhailo Troynin"
+  role: "AI-assisted Technical Writer"
+  email: "hello@example.com"
+
+# Navigation
+nav:
+  - title: Home
+    url: /
+  - title: Work Samples
+    url: /work/
+  - title: AI Workflow
+    url: /workflow/
+  - title: About
+    url: /about/
+  - title: Contact
+    url: /contact/
+
+# Collections
+collections:
+  samples:
+    output: true
+    permalink: /work/:slug/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "samples"
+    values:
+      layout: sample
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: page
+
+# Build
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+sass:
+  sass_dir: _sass
+  style: compressed
+
+plugins:
+  - jekyll-seo-tag
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - README.md

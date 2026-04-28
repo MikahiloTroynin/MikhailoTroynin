@@ -1,0 +1,57 @@
+---
+layout: default
+title: AI Workflow
+permalink: /workflow/
+---
+<main>
+  <div class="container page-header">
+    <span class="eyebrow">/workflow</span>
+    <h1>AI-assisted documentation, reviewed like engineering work.</h1>
+    <p class="lede">I use AI to accelerate research, structure and drafting. Every technical statement is then validated against source code, product behavior, API responses or SME feedback before it ships.</p>
+  </div>
+
+  <section class="container" style="padding-bottom: 80px;">
+    <div class="workflow-layout">
+      <article class="prose">
+        <h2 id="principles">Operating principles</h2>
+        <div class="principle-grid">
+          {% for p in site.data.workflow.principles %}
+          <div class="principle">
+            <p class="k">{{ p.title }}</p>
+            <p class="v">{{ p.body }}</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <h2 id="checklist">Hallucination prevention checklist</h2>
+        <p>Documentation passes review only when every item is checked.</p>
+        <ul class="checklist">
+          {% for item in site.data.workflow.checklist %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+
+        <h2 id="prompts">Example prompts I use</h2>
+        <p>These are reusable prompt templates I keep alongside the docs repo. Each has a stage label so the right prompt applies at the right step.</p>
+        {% for p in site.data.workflow.prompts %}
+        <div class="prompt-card">
+          <div class="head">
+            <span class="name">{{ p.name }}</span>
+            <span class="stage">{{ p.stage }}</span>
+          </div>
+          <pre>{{ p.body }}</pre>
+        </div>
+        {% endfor %}
+      </article>
+
+      <aside>
+        <nav class="toc" aria-label="On this page">
+          <div class="toc-title">On this page</div>
+          <a href="#principles">Operating principles</a>
+          <a href="#checklist">Hallucination checklist</a>
+          <a href="#prompts">Example prompts</a>
+        </nav>
+      </aside>
+    </div>
+  </section>
+</main>

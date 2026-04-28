@@ -1,0 +1,46 @@
+---
+layout: default
+title: Work Samples
+permalink: /work/
+---
+<main>
+  <div class="container page-header">
+    <span class="eyebrow">/work</span>
+    <h1>Work Samples</h1>
+    <p class="lede">Documentation projects with input materials, process and outcome. Filter by topic.</p>
+  </div>
+
+  <section class="container" style="padding-bottom: 80px;">
+    <div class="filter-bar">
+      <button class="filter-btn is-active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="API Docs">API Docs</button>
+      <button class="filter-btn" data-filter="Code-to-Docs">Code-to-Docs</button>
+      <button class="filter-btn" data-filter="Developer Onboarding">Developer Onboarding</button>
+      <button class="filter-btn" data-filter="AI Workflow">AI Workflow</button>
+      <button class="filter-btn" data-filter="Internal Docs">Internal Docs</button>
+    </div>
+
+    <div class="samples-grid" id="samples-grid">
+      {% assign sorted = site.samples | sort: "order" %}
+      {% for sample in sorted %}
+      <a href="{{ sample.url | relative_url }}" class="sample-card" data-category="{{ sample.category }}">
+        <div class="tag-list">
+          {% for tag in sample.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+        </div>
+        <h3>{{ sample.title }}</h3>
+        <p>{{ sample.summary }}</p>
+        <div class="sample-meta">
+          <strong>Input</strong>
+          <span>{{ sample.input | slice: 0, 3 | join: ", " }}</span>
+          <strong>Output</strong>
+          <span>{{ sample.output | slice: 0, 3 | join: ", " }}</span>
+        </div>
+        <div class="sample-actions">
+          <span>View sample</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+</main>
