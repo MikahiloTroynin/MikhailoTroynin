@@ -440,6 +440,11 @@ function WorkPage({ lang }) {
 
 /* ---------- Sample Detail (with sticky TOC) ---------- */
 function SampleDetailPage({ lang, id }) {
+  // Sub-route: e.g. rest-api-docs/edgeveda-generate → render API doc page
+  if (id && id.includes("/")) {
+    const [sampleId, docId] = id.split("/", 2);
+    return <ApiDocPage lang={lang} sampleId={sampleId} docId={docId} />;
+  }
   const sample = window.SAMPLES.find(s => s.id === id) || window.SAMPLES[0];
   const tWork = window.I18N[lang].workPage;
 
@@ -462,6 +467,19 @@ function SampleDetailPage({ lang, id }) {
         { id: "deliverables", label: en ? "Deliverables" : "Результати" },
         { id: "validation", label: en ? "Validation approach" : "Підхід до валідації" },
         { id: "result", label: en ? "Status & next step" : "Статус і наступний крок" },
+      ];
+    }
+    if (sample.id === "rest-api-docs") {
+      return [
+        { id: "context", label: en ? "Context" : "Контекст" },
+        { id: "problem", label: en ? "Problem" : "Проблема" },
+        { id: "input", label: en ? "Input materials" : "Вхідні матеріали" },
+        { id: "process", label: en ? "Documentation process" : "Процес документації" },
+        { id: "before-after", label: en ? "Before / After" : "До / Після" },
+        { id: "deliverables", label: en ? "Deliverables" : "Результати" },
+        { id: "api-reference", label: en ? "API Reference" : "API Reference" },
+        { id: "validation", label: en ? "Validation approach" : "Підхід до валідації" },
+        { id: "result", label: en ? "Result" : "Результат" },
       ];
     }
     return [
@@ -1905,6 +1923,10 @@ Returns:
         <li>Webhook documentation with signature verification</li>
         <li>Versioning policy</li>
       </ul>
+
+      <h2 id="api-reference">Embedded API Reference</h2>
+      <p>The following API reference pages were created as part of this project. Click to view the full documentation.</p>
+      <ApiDocsList lang="en" sampleId="rest-api-docs" />
       <h2 id="validation">Validation approach</h2>
       <p>Every example was generated from the staging API, not handwritten. Schema accuracy was verified by parsing the OpenAPI source as ground truth. The API lead reviewed each section before publication.</p>
       <blockquote>The quickstart was tested by giving the URL to a developer outside the team. They had a working request in 4 minutes.</blockquote>
@@ -1970,6 +1992,10 @@ Returns:
         <li>Документація webhook-ів із verification підпису</li>
         <li>Versioning policy</li>
       </ul>
+
+      <h2 id="api-reference">Вбудована API-документація</h2>
+      <p>Наступні сторінки API reference створені в межах цього проєкту. Клікніть, щоб переглянути повний опис.</p>
+      <ApiDocsList lang="ua" sampleId="rest-api-docs" />
       <h2 id="validation">Підхід до валідації</h2>
       <p>Кожен приклад згенеровано через staging API, а не написано вручну. Точність схем перевірено через OpenAPI як ground truth. API lead review-їв кожен розділ.</p>
       <blockquote>Quickstart протестував розробник поза командою. У нього був робочий запит за 4 хвилини.</blockquote>
@@ -1978,6 +2004,5353 @@ Returns:
     </>
   );
 }
+
+/* ---------- API Docs List component ---------- */
+function ApiDocsList({ lang, sampleId }) {
+  const docs = (window.API_DOCS || []).filter(d => d.parentSample === sampleId);
+  if (!docs.length) return null;
+  return (
+    <div className="api-docs-list">
+      {docs.map(doc => (
+        <a key={doc.id}
+           href={"#/sample/" + sampleId + "/" + doc.id}
+           className="api-doc-card">
+          <div className="api-doc-card__header">
+            <code className="api-doc-card__method">{doc.title[lang]}</code>
+            <span className="api-doc-card__badge">{doc.stability}</span>
+          </div>
+          <p className="api-doc-card__desc">{doc.description[lang]}</p>
+          <div className="api-doc-card__meta">
+            <span>{doc.className}</span>
+            <span>v{doc.since}</span>
+            {doc.tags.map(t => <span key={t} className="tag tag--sm">{t}</span>)}
+          </div>
+          <span className="api-doc-card__arrow">→</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- API Doc Page ---------- */
+function ApiDocPage({ lang, sampleId, docId }) {
+  const doc = (window.API_DOCS || []).find(d => d.id === docId && d.parentSample === sampleId);
+  const parentSample = window.SAMPLES.find(s => s.id === sampleId);
+
+  if (!doc) {
+    return (
+      <main>
+        <div className="container page-header">
+          <a href={"#/sample/" + sampleId} className="button button-ghost button-sm" style={{ paddingLeft: 0, marginBottom: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            {lang === "en" ? "Back to sample" : "Назад до прикладу"}
+          </a>
+          <h1>{lang === "en" ? "Document not found" : "Документ не знайдено"}</h1>
+        </div>
+      </main>
+    );
+  }
+
+  const contentMap = API_DOC_CONTENT[docId];
+  const content = contentMap ? contentMap[lang] : null;
+
+  const sections = API_DOC_SECTIONS[docId]?.[lang] || [];
+
+  const [active, setActive] = useState(sections[0]?.id || "");
+  useEffect(() => {
+    const onScroll = () => {
+      let cur = sections[0]?.id || "";
+      for (const s of sections) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - 100 <= 0) cur = s.id;
+      }
+      setActive(cur);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [sections]);
+
+  return (
+    <main>
+      <div className="container page-header">
+        <a href={"#/sample/" + sampleId} className="button button-ghost button-sm" style={{ paddingLeft: 0, marginBottom: 8 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          {parentSample ? parentSample.title[lang] : (lang === "en" ? "Back" : "Назад")}
+        </a>
+        <div className="tag-list" style={{ marginTop: 8 }}>
+          {doc.tags.map(t => <span key={t} className="tag">{t}</span>)}
+        </div>
+        <h1><code>{doc.title[lang]}</code></h1>
+        <p className="lede">{doc.description[lang]}</p>
+
+        <div className="detail-meta-bar">
+          <div className="item">
+            <div className="k">Class</div>
+            <div className="v"><code>{doc.className}</code></div>
+          </div>
+          <div className="item">
+            <div className="k">Method</div>
+            <div className="v"><code>{doc.method}</code></div>
+          </div>
+          <div className="item">
+            <div className="k">Since</div>
+            <div className="v">v{doc.since}</div>
+          </div>
+          <div className="item">
+            <div className="k">{lang === "en" ? "Status" : "Статус"}</div>
+            <div className="v" style={{ color: "var(--color-success)" }}>● {doc.stability}</div>
+          </div>
+        </div>
+      </div>
+
+      <section className="container" style={{ paddingBottom: 80 }}>
+        <div className="detail-layout">
+          <article className="prose api-ref-prose">
+            {content}
+          </article>
+          <aside>
+            <nav className="toc" aria-label="Table of contents">
+              <div className="toc-title">{lang === "en" ? "On this page" : "На цій сторінці"}</div>
+              {sections.map(s => (
+                <a key={s.id}
+                   href={"#" + s.id}
+                   className={active === s.id ? "is-active" : ""}
+                   onClick={(e) => {
+                     e.preventDefault();
+                     const el = document.getElementById(s.id);
+                     if (el) {
+                       const y = el.getBoundingClientRect().top + window.scrollY - 90;
+                       window.scrollTo({ top: y, behavior: "smooth" });
+                     }
+                   }}>
+                  {s.label}
+                </a>
+              ))}
+            </nav>
+          </aside>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+/* ---------- API Doc sections (TOC) ---------- */
+const API_DOC_SECTIONS = {
+  "edgeveda-init": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+  "edgeveda-generate": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+  "edgeveda-generate-stream": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+  "edgeveda-describe-image": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+  "edgeveda-embed": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+  "edgeveda-embed-batch": {
+    en: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "What it does" },
+      { id: "when-to-use", label: "When to use it" },
+      { id: "prerequisites", label: "Prerequisites" },
+      { id: "parameters", label: "Parameters" },
+      { id: "returns", label: "Returns" },
+      { id: "errors", label: "Errors and exceptions" },
+      { id: "examples", label: "Minimal example" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Behavior notes" },
+      { id: "performance", label: "Performance notes" },
+      { id: "compatibility", label: "Model compatibility" },
+      { id: "privacy", label: "Privacy and security" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Related APIs" },
+    ],
+    ua: [
+      { id: "api-summary", label: "API summary" },
+      { id: "signature", label: "Signature" },
+      { id: "what-it-does", label: "Що робить" },
+      { id: "when-to-use", label: "Коли використовувати" },
+      { id: "prerequisites", label: "Передумови" },
+      { id: "parameters", label: "Параметри" },
+      { id: "returns", label: "Повертає" },
+      { id: "errors", label: "Помилки та винятки" },
+      { id: "examples", label: "Приклади" },
+      { id: "streaming-example", label: "Streaming example" },
+      { id: "behavior", label: "Поведінка" },
+      { id: "performance", label: "Продуктивність" },
+      { id: "compatibility", label: "Сумісність" },
+      { id: "privacy", label: "Приватність" },
+      { id: "troubleshooting", label: "Troubleshooting" },
+      { id: "related", label: "Пов'язані API" },
+    ],
+  },
+};
+
+function EdgevedaInitEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>init()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Runtime initialization</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future&lt;void&gt; init(EdgeVedaConfig config);`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>init()</code> stores the <code>EdgeVedaConfig</code> for the SDK instance and validates that the model referenced by <code>config.modelPath</code> can be loaded. It does not produce text or embeddings. It performs configuration validation, checks that the model file exists, and runs a background-isolate load test against the native runtime.</p>
+      <p>The method returns <code>Future&lt;void&gt;</code> and completes when the SDK instance is ready for subsequent calls such as <code>generate()</code>, <code>generateStream()</code>, and <code>embed()</code>.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>init()</code> when you need to:</p>
+      <ul>
+        <li>prepare an <code>EdgeVeda</code> instance for text generation or embeddings;</li>
+        <li>validate that a downloaded or imported GGUF model file can be loaded;</li>
+        <li>apply runtime settings such as context length, thread count, GPU usage, and KV-cache configuration.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>the instance is already initialized; call <code>dispose()</code> first if you need to reinitialize with a different model or configuration;</li>
+        <li>you only need to download or import a model; use <code>ModelManager</code> for model file management;</li>
+        <li>you are initializing vision or image generation models, which have separate initialization APIs.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li>a compatible model file exists at <code>config.modelPath</code>;</li>
+        <li>the app has permission to read the model file from its local storage location;</li>
+        <li>the selected model fits the target device memory budget;</li>
+        <li>the app chooses a realistic <code>contextLength</code> for the target device;</li>
+        <li>GPU/Metal usage is enabled only on platforms where it is supported and tested;</li>
+        <li>the app is prepared to handle model-load and memory-related failures.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>config</code></td>
+              <td><code>EdgeVedaConfig</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Runtime configuration used to initialize the SDK instance.</td>
+              <td>Must include a valid <code>modelPath</code>. Other fields control threads, context length, GPU usage, memory budget, flash attention, and KV-cache quantization.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><code>EdgeVedaConfig</code> fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>modelPath</code></td>
+              <td><code>String</code></td>
+              <td>Required</td>
+              <td>Path to the local GGUF model file.</td>
+              <td>The file must exist before calling <code>init()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>numThreads</code></td>
+              <td><code>int</code></td>
+              <td><code>4</code></td>
+              <td>Number of CPU threads to use for inference.</td>
+              <td>Tune per device class.</td>
+            </tr>
+            <tr>
+              <td><code>contextLength</code></td>
+              <td><code>int</code></td>
+              <td><code>2048</code></td>
+              <td>Maximum context length in tokens.</td>
+              <td>Higher values increase memory usage.</td>
+            </tr>
+            <tr>
+              <td><code>useGpu</code></td>
+              <td><code>bool</code></td>
+              <td><code>true</code></td>
+              <td>Enables GPU acceleration where supported.</td>
+              <td>On iOS/macOS this typically means Metal.</td>
+            </tr>
+            <tr>
+              <td><code>maxMemoryMb</code></td>
+              <td><code>int</code></td>
+              <td><code>1536</code></td>
+              <td>Memory budget in MB.</td>
+              <td>Use conservative values on 4 GB devices.</td>
+            </tr>
+            <tr>
+              <td><code>verbose</code></td>
+              <td><code>bool</code></td>
+              <td><code>false</code></td>
+              <td>Enables verbose logging.</td>
+              <td>Useful during integration and debugging.</td>
+            </tr>
+            <tr>
+              <td><code>flashAttn</code></td>
+              <td><code>int</code></td>
+              <td><code>-1</code></td>
+              <td>Flash attention mode.</td>
+              <td><code>-1</code> means auto.</td>
+            </tr>
+            <tr>
+              <td><code>kvCacheTypeK</code></td>
+              <td><code>int</code></td>
+              <td><code>8</code></td>
+              <td>KV-cache quantization type for keys.</td>
+              <td><code>1 = F16</code>, <code>8 = Q8_0</code>.</td>
+            </tr>
+            <tr>
+              <td><code>kvCacheTypeV</code></td>
+              <td><code>int</code></td>
+              <td><code>8</code></td>
+              <td>KV-cache quantization type for values.</td>
+              <td><code>1 = F16</code>, <code>8 = Q8_0</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Future&lt;void&gt;</code></p>
+      <p>The future completes when the SDK has validated the configuration and confirmed that the model can be loaded. The method does not return a runtime handle, generated text, embeddings, or model metadata.</p>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>InitializationException</code></td>
+              <td>The <code>EdgeVeda</code> instance is already initialized, or native initialization fails for an unknown or wrapped reason.</td>
+              <td>Call <code>dispose()</code> before reinitializing; log the details and show a recovery message.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>The model file does not exist at <code>config.modelPath</code> or cannot be loaded by the native runtime.</td>
+              <td>Verify the path with <code>ModelManager</code>, re-download/import the model, or choose a compatible model.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>The configuration is invalid.</td>
+              <td>Check context length, memory budget, thread count, and GPU settings.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Model load exceeds the configured or practical memory budget.</td>
+              <td>Reduce <code>contextLength</code>, choose a smaller model, or disable expensive options.</td>
+            </tr>
+            <tr>
+              <td><code>EdgeVedaException</code></td>
+              <td>A typed SDK exception is rethrown from validation or native load testing.</td>
+              <td>Handle by exception type where possible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  numThreads: 4,
+  useGpu: true,
+));`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<EdgeVeda> createRuntime(String modelPath) async {
+  final edgeVeda = EdgeVeda();
+
+  try {
+    await edgeVeda.init(EdgeVedaConfig(
+      modelPath: modelPath,
+      contextLength: 2048,
+      numThreads: 4,
+      useGpu: true,
+      maxMemoryMb: 1536,
+    ));
+
+    return edgeVeda;
+  } on ModelLoadException catch (error) {
+    throw Exception('The local model could not be loaded: \${error.message}');
+  } on InitializationException catch (error) {
+    throw Exception('Edge Veda initialization failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Not applicable. <code>init()</code> does not emit a stream. Use <code>generateStream()</code> after successful initialization.</p>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>init()</code> is the entry point for the core text/embedding runtime.</li>
+        <li>The method validates the model file path before native initialization.</li>
+        <li>The source implementation performs a background-isolate load test and frees the test context after validation.</li>
+        <li>After <code>init()</code> completes, subsequent text generation can reuse a persistent streaming worker.</li>
+        <li>Calling <code>init()</code> twice on the same instance without <code>dispose()</code> is an error.</li>
+        <li>Vision and image generation have separate initialization paths.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Model size</td>
+              <td>Larger models increase load time, RAM usage, and storage requirements.</td>
+              <td>Start with a small recommended chat model such as a 1B-class GGUF model for first integration.</td>
+            </tr>
+            <tr>
+              <td>Context length</td>
+              <td>Higher context lengths increase KV-cache memory.</td>
+              <td>Use <code>2048</code> as a practical default; reduce on lower-memory devices.</td>
+            </tr>
+            <tr>
+              <td>GPU / Metal usage</td>
+              <td>GPU acceleration improves throughput on supported Apple devices but must be validated per platform.</td>
+              <td>Keep <code>useGpu: true</code> on validated iOS/macOS targets; test simulator and Android separately.</td>
+            </tr>
+            <tr>
+              <td>Memory budget</td>
+              <td>Too high may risk OS termination; too low may block model loading.</td>
+              <td>Keep <code>maxMemoryMb</code> conservative and validate on physical devices.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF LLM models</td>
+              <td>Yes</td>
+              <td>Used for text generation and embeddings. Model must be compatible with the native backend.</td>
+            </tr>
+            <tr>
+              <td>Whisper GGUF models</td>
+              <td>No for <code>init()</code></td>
+              <td>Use Whisper-specific worker/session APIs.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion models</td>
+              <td>No for <code>init()</code></td>
+              <td>Use image generation initialization APIs.</td>
+            </tr>
+            <tr>
+              <td>Vision-language models</td>
+              <td>No for <code>init()</code></td>
+              <td>Use <code>initVision()</code> / vision worker APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Metal GPU path is the primary validated target.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior may be slower and not representative.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate app sandbox and model file paths.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Treat as scaffolded until validated on target devices.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime and model loading are not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: local model file path and runtime configuration.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: model files.</li>
+        <li>Sensitive data considerations: avoid logging full local paths if they may expose user-specific directory names or project data.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>ModelLoadException: Model file not found</code></td>
+              <td><code>modelPath</code> points to a missing, moved, or not-yet-downloaded file.</td>
+              <td>Resolve the path with <code>ModelManager</code> and check the file before calling <code>init()</code>.</td>
+            </tr>
+            <tr>
+              <td>Initialization is slow on first run</td>
+              <td>The model is being validated by the native runtime.</td>
+              <td>Show a loading state and test on a physical device in release/profile mode.</td>
+            </tr>
+            <tr>
+              <td>Out-of-memory or OS termination</td>
+              <td>Model/context is too large for the device.</td>
+              <td>Use a smaller model or lower <code>contextLength</code> and <code>maxMemoryMb</code>.</td>
+            </tr>
+            <tr>
+              <td>Reinitialization fails</td>
+              <td><code>init()</code> was called twice on the same instance.</td>
+              <td>Call <code>await edgeVeda.dispose()</code> before reinitializing.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li>[<code>EdgeVeda.generate()</code>](./generate.md) — returns a complete text generation response after initialization.</li>
+        <li>[<code>EdgeVeda.generateStream()</code>](./generate-stream.md) — streams generated tokens after initialization.</li>
+        <li>[<code>EdgeVeda.dispose()</code>](./dispose.md) — releases runtime resources before reinitialization.</li>
+        <li>[<code>ModelManager.downloadModel()</code>](../model-management/download-model.md) — obtains model files before initialization.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaInitUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>init()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Runtime initialization</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future&lt;void&gt; init(EdgeVedaConfig config);`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>init()</code> зберігає <code>EdgeVedaConfig</code> для SDK-інстансу та перевіряє, що модель із <code>config.modelPath</code> можна завантажити. Метод не генерує текст і не створює embeddings. Він валідовує конфігурацію, перевіряє наявність model file і запускає background-isolate load test проти native runtime.</p>
+      <p>Метод повертає <code>Future&lt;void&gt;</code> і завершується, коли SDK-інстанс готовий до наступних викликів: <code>generate()</code>, <code>generateStream()</code> та <code>embed()</code>.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>init()</code>, коли потрібно:</p>
+      <ul>
+        <li>підготувати <code>EdgeVeda</code> instance для text generation або embeddings;</li>
+        <li>перевірити, що downloaded/imported GGUF model file може бути завантажений;</li>
+        <li>застосувати runtime settings: context length, thread count, GPU usage, KV-cache configuration.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>інстанс уже ініціалізований; спочатку викличте <code>dispose()</code>, якщо треба переініціалізувати з іншою моделлю або конфігурацією;</li>
+        <li>потрібно лише завантажити або імпортувати модель; для цього використовуйте <code>ModelManager</code>;</li>
+        <li>потрібно ініціалізувати vision або image generation models — для них є окремі API.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li>compatible model file існує за шляхом <code>config.modelPath</code>;</li>
+        <li>застосунок має право читати model file з локального сховища;</li>
+        <li>вибрана модель поміщається в memory budget цільового пристрою;</li>
+        <li>застосунок вибирає реалістичний <code>contextLength</code> для цільового пристрою;</li>
+        <li>GPU/Metal usage увімкнено лише там, де це підтримано й перевірено;</li>
+        <li>застосунок обробляє model-load і memory-related failures.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>config</code></td>
+              <td><code>EdgeVedaConfig</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Runtime configuration для ініціалізації SDK instance.</td>
+              <td>Має містити валідний <code>modelPath</code>. Інші поля керують threads, context length, GPU usage, memory budget, flash attention та KV-cache quantization.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><code>EdgeVedaConfig</code> fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>modelPath</code></td>
+              <td><code>String</code></td>
+              <td>Required</td>
+              <td>Шлях до локального GGUF model file.</td>
+              <td>Файл має існувати до виклику <code>init()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>numThreads</code></td>
+              <td><code>int</code></td>
+              <td><code>4</code></td>
+              <td>Кількість CPU threads для inference.</td>
+              <td>Налаштовуйте під device class.</td>
+            </tr>
+            <tr>
+              <td><code>contextLength</code></td>
+              <td><code>int</code></td>
+              <td><code>2048</code></td>
+              <td>Максимальна довжина контексту в токенах.</td>
+              <td>Більші значення збільшують memory usage.</td>
+            </tr>
+            <tr>
+              <td><code>useGpu</code></td>
+              <td><code>bool</code></td>
+              <td><code>true</code></td>
+              <td>Увімкнення GPU acceleration там, де підтримано.</td>
+              <td>На iOS/macOS це зазвичай Metal.</td>
+            </tr>
+            <tr>
+              <td><code>maxMemoryMb</code></td>
+              <td><code>int</code></td>
+              <td><code>1536</code></td>
+              <td>Memory budget у MB.</td>
+              <td>На 4 GB devices використовуйте консервативні значення.</td>
+            </tr>
+            <tr>
+              <td><code>verbose</code></td>
+              <td><code>bool</code></td>
+              <td><code>false</code></td>
+              <td>Увімкнення verbose logging.</td>
+              <td>Корисно під час integration/debugging.</td>
+            </tr>
+            <tr>
+              <td><code>flashAttn</code></td>
+              <td><code>int</code></td>
+              <td><code>-1</code></td>
+              <td>Flash attention mode.</td>
+              <td><code>-1</code> означає auto.</td>
+            </tr>
+            <tr>
+              <td><code>kvCacheTypeK</code></td>
+              <td><code>int</code></td>
+              <td><code>8</code></td>
+              <td>KV-cache quantization type for keys.</td>
+              <td><code>1 = F16</code>, <code>8 = Q8_0</code>.</td>
+            </tr>
+            <tr>
+              <td><code>kvCacheTypeV</code></td>
+              <td><code>int</code></td>
+              <td><code>8</code></td>
+              <td>KV-cache quantization type for values.</td>
+              <td><code>1 = F16</code>, <code>8 = Q8_0</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Future&lt;void&gt;</code></p>
+      <p>Future завершується, коли SDK валідовує конфігурацію і підтверджує, що модель можна завантажити. Метод не повертає runtime handle, generated text, embeddings або model metadata.</p>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>InitializationException</code></td>
+              <td><code>EdgeVeda</code> instance уже ініціалізований або native initialization завершується невідомою/обгорнутою помилкою.</td>
+              <td>Викличте <code>dispose()</code> перед reinitialize; залогуйте details і покажіть recovery message.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>Model file не існує за <code>config.modelPath</code> або native runtime не може її завантажити.</td>
+              <td>Перевірте шлях через <code>ModelManager</code>, re-download/import модель або виберіть compatible model.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>Конфігурація невалідна.</td>
+              <td>Перевірте context length, memory budget, thread count і GPU settings.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Model load перевищує memory budget.</td>
+              <td>Зменште <code>contextLength</code>, виберіть меншу модель або вимкніть дорогі опції.</td>
+            </tr>
+            <tr>
+              <td><code>EdgeVedaException</code></td>
+              <td>Typed SDK exception повертається з validation або native load testing.</td>
+              <td>Обробляйте за конкретним exception type, якщо можливо.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  numThreads: 4,
+  useGpu: true,
+));`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<EdgeVeda> createRuntime(String modelPath) async {
+  final edgeVeda = EdgeVeda();
+
+  try {
+    await edgeVeda.init(EdgeVedaConfig(
+      modelPath: modelPath,
+      contextLength: 2048,
+      numThreads: 4,
+      useGpu: true,
+      maxMemoryMb: 1536,
+    ));
+
+    return edgeVeda;
+  } on ModelLoadException catch (error) {
+    throw Exception('The local model could not be loaded: \${error.message}');
+  } on InitializationException catch (error) {
+    throw Exception('Edge Veda initialization failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Не застосовується. <code>init()</code> не повертає stream. Після успішної ініціалізації використовуйте <code>generateStream()</code>.</p>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>init()</code> — entry point для core text/embedding runtime.</li>
+        <li>Метод перевіряє model file path перед native initialization.</li>
+        <li>Source implementation виконує background-isolate load test і звільняє test context після validation.</li>
+        <li>Після завершення <code>init()</code> наступні text generation calls можуть використовувати persistent streaming worker.</li>
+        <li>Повторний виклик <code>init()</code> на тому самому інстансі без <code>dispose()</code> — помилка.</li>
+        <li>Vision і image generation мають окремі initialization paths.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Model size</td>
+              <td>Більші моделі збільшують load time, RAM usage і storage requirements.</td>
+              <td>Починайте з невеликої recommended chat model, наприклад 1B-class GGUF.</td>
+            </tr>
+            <tr>
+              <td>Context length</td>
+              <td>Більші context lengths збільшують KV-cache memory.</td>
+              <td>Використовуйте <code>2048</code> як практичний default; зменшуйте для low-memory devices.</td>
+            </tr>
+            <tr>
+              <td>GPU / Metal usage</td>
+              <td>GPU acceleration покращує throughput на supported Apple devices.</td>
+              <td>Залишайте <code>useGpu: true</code> на validated iOS/macOS targets; simulator і Android тестуйте окремо.</td>
+            </tr>
+            <tr>
+              <td>Memory budget</td>
+              <td>Завелике значення може ризикувати OS termination; замале — блокувати model loading.</td>
+              <td>Тримайте <code>maxMemoryMb</code> консервативним і перевіряйте на physical devices.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF LLM models</td>
+              <td>Yes</td>
+              <td>Для text generation та embeddings. Модель має бути compatible з native backend.</td>
+            </tr>
+            <tr>
+              <td>Whisper GGUF models</td>
+              <td>No for <code>init()</code></td>
+              <td>Використовуйте Whisper-specific worker/session APIs.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion models</td>
+              <td>No for <code>init()</code></td>
+              <td>Використовуйте image generation initialization APIs.</td>
+            </tr>
+            <tr>
+              <td>Vision-language models</td>
+              <td>No for <code>init()</code></td>
+              <td>Використовуйте <code>initVision()</code> / vision worker APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Metal GPU path — основний validated target.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior може бути повільним і нерепрезентативним.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте app sandbox і model file paths.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Вважайте scaffolded до перевірки на target devices.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime і model loading не орієнтовані на web.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: local model file path і runtime configuration.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: model files.</li>
+        <li>Sensitive data considerations: не логуйте повні локальні шляхи, якщо вони можуть розкривати user-specific directories або project data.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>ModelLoadException: Model file not found</code></td>
+              <td><code>modelPath</code> вказує на missing/moved/not-yet-downloaded file.</td>
+              <td>Отримайте шлях через <code>ModelManager</code> і перевірте файл перед <code>init()</code>.</td>
+            </tr>
+            <tr>
+              <td>Initialization повільна на першому запуску</td>
+              <td>Модель перевіряється native runtime.</td>
+              <td>Покажіть loading state і тестуйте на physical device у release/profile mode.</td>
+            </tr>
+            <tr>
+              <td>Out-of-memory або OS termination</td>
+              <td>Model/context завеликий для пристрою.</td>
+              <td>Використайте меншу модель або зменште <code>contextLength</code> і <code>maxMemoryMb</code>.</td>
+            </tr>
+            <tr>
+              <td>Reinitialization fails</td>
+              <td><code>init()</code> викликано двічі на тому самому instance.</td>
+              <td>Викличте <code>await edgeVeda.dispose()</code> перед reinitialize.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li>[<code>EdgeVeda.generate()</code>](./generate.md) — повертає complete text generation response після initialization.</li>
+        <li>[<code>EdgeVeda.generateStream()</code>](./generate-stream.md) — стрімить generated tokens після initialization.</li>
+        <li>[<code>EdgeVeda.dispose()</code>](./dispose.md) — звільняє runtime resources перед reinitialization.</li>
+        <li>[<code>ModelManager.downloadModel()</code>](../model-management/download-model.md) — отримує model files до initialization.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaGenerateEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>generate()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Text generation</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No; use <code>generateStream()</code> for token streaming</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<GenerateResponse> generate(
+  String prompt, {
+  GenerateOptions? options,
+  Duration? timeout,
+});`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>generate()</code> sends a prompt to the local model and returns a complete <code>GenerateResponse</code>. Internally, it routes through the same persistent <code>StreamingWorker</code> used by <code>generateStream()</code>, collects emitted tokens into a buffer, and returns the final text with generation metadata.</p>
+      <p>The method is asynchronous and performs inference on device. It does not require a network call.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>generate()</code> when you need to:</p>
+      <ul>
+        <li>produce a complete answer before updating the UI;</li>
+        <li>run short assistant, summarization, classification, or transformation tasks;</li>
+        <li>apply a timeout to a blocking generation request;</li>
+        <li>avoid manual stream handling in simple application flows.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>you need token-by-token rendering in a chat UI; use <code>generateStream()</code>;</li>
+        <li>another stream is already active on the same <code>EdgeVeda</code> instance;</li>
+        <li>you need multi-turn conversation state; consider <code>ChatSession</code>;</li>
+        <li>you need structured tool-calling loops; consider <code>ChatSession.sendWithTools()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> has completed successfully;</li>
+        <li>the prompt is not empty;</li>
+        <li>the selected model is appropriate for the prompt style and expected output;</li>
+        <li><code>GenerateOptions</code> values are within supported ranges;</li>
+        <li>the app can handle latency for a full response, especially for large <code>maxTokens</code>;</li>
+        <li>no streaming operation is already active on the same runtime instance.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Input text passed to the local model.</td>
+              <td>Must not be empty. Keep prompts within the configured context length.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions()</code></td>
+              <td>Controls sampling, token limit, system prompt, JSON/grammar behavior, and confidence tracking.</td>
+              <td>Invalid values can throw <code>ConfigurationException</code>.</td>
+            </tr>
+            <tr>
+              <td><code>timeout</code></td>
+              <td><code>Duration?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional maximum duration for the complete generation call.</td>
+              <td>If exceeded, the method throws <code>GenerationException</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Common <code>GenerateOptions</code> fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>systemPrompt</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional system-level instruction.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td><code>int</code></td>
+              <td><code>512</code></td>
+              <td>Maximum number of tokens to generate.</td>
+            </tr>
+            <tr>
+              <td><code>temperature</code></td>
+              <td><code>double</code></td>
+              <td><code>0.7</code></td>
+              <td>Sampling randomness. Lower is more deterministic.</td>
+            </tr>
+            <tr>
+              <td><code>topP</code></td>
+              <td><code>double</code></td>
+              <td><code>0.9</code></td>
+              <td>Nucleus sampling threshold.</td>
+            </tr>
+            <tr>
+              <td><code>topK</code></td>
+              <td><code>int</code></td>
+              <td><code>40</code></td>
+              <td>Limits sampling to the top K candidate tokens.</td>
+            </tr>
+            <tr>
+              <td><code>repeatPenalty</code></td>
+              <td><code>double</code></td>
+              <td><code>1.1</code></td>
+              <td>Discourages repeated output.</td>
+            </tr>
+            <tr>
+              <td><code>stopSequences</code></td>
+              <td><code>List&lt;String&gt;</code></td>
+              <td><code>[]</code></td>
+              <td>Stop sequences for early termination.</td>
+            </tr>
+            <tr>
+              <td><code>jsonMode</code></td>
+              <td><code>bool</code></td>
+              <td><code>false</code></td>
+              <td>Requests valid JSON output.</td>
+            </tr>
+            <tr>
+              <td><code>grammarStr</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional GBNF grammar for constrained decoding.</td>
+            </tr>
+            <tr>
+              <td><code>grammarRoot</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional root rule for the grammar.</td>
+            </tr>
+            <tr>
+              <td><code>confidenceThreshold</code></td>
+              <td><code>double</code></td>
+              <td><code>0.0</code></td>
+              <td>Enables confidence tracking and cloud-handoff signaling when greater than zero.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Future&lt;GenerateResponse&gt;</code></p>
+      <p>A future that resolves to the complete generated response.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>text</code></td>
+              <td><code>String</code></td>
+              <td>Complete generated text content.</td>
+            </tr>
+            <tr>
+              <td><code>promptTokens</code></td>
+              <td><code>int</code></td>
+              <td>Number of prompt tokens reported by the response.</td>
+            </tr>
+            <tr>
+              <td><code>completionTokens</code></td>
+              <td><code>int</code></td>
+              <td>Number of generated tokens collected from the stream.</td>
+            </tr>
+            <tr>
+              <td><code>latencyMs</code></td>
+              <td><code>int?</code></td>
+              <td>Total generation duration in milliseconds.</td>
+            </tr>
+            <tr>
+              <td><code>avgConfidence</code></td>
+              <td><code>double?</code></td>
+              <td>Average confidence across generated tokens when confidence tracking is enabled.</td>
+            </tr>
+            <tr>
+              <td><code>needsCloudHandoff</code></td>
+              <td><code>bool</code></td>
+              <td>Whether the model signaled that cloud handoff may be needed.</td>
+            </tr>
+            <tr>
+              <td><code>tokensPerSecond</code></td>
+              <td><code>double?</code></td>
+              <td>Derived throughput when latency and token counts are available.</td>
+            </tr>
+            <tr>
+              <td><code>totalTokens</code></td>
+              <td><code>int</code></td>
+              <td>Prompt and completion tokens combined.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>GenerationException</code></td>
+              <td>Prompt is empty, generation times out, the worker fails, or a streaming conflict occurs.</td>
+              <td>Validate input, avoid concurrent streams, retry with lower <code>maxTokens</code>, or show a user-facing failure state.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>One or more <code>GenerateOptions</code> values are outside allowed ranges.</td>
+              <td>Clamp UI controls and validate options before calling the method.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime is not initialized or another SDK-level failure occurs.</td>
+              <td>Call <code>init()</code> first and handle typed exceptions.</td>
+            </tr>
+            <tr>
+              <td>Stream-propagated errors</td>
+              <td>Since <code>generate()</code> consumes <code>generateStream()</code>, stream errors can surface as generation failures.</td>
+              <td>Log the underlying details and recover at the application level.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  useGpu: true,
+));
+
+final response = await edgeVeda.generate(
+  'Explain on-device AI in two sentences.',
+);
+
+print(response.text);`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> summarizeNote(EdgeVeda edgeVeda, String note) async {
+  if (note.trim().isEmpty) {
+    throw ArgumentError('note must not be empty');
+  }
+
+  try {
+    final response = await edgeVeda.generate(
+      'Summarize this note for a product manager:\\n\\n$note',
+      options: const GenerateOptions(
+        maxTokens: 180,
+        temperature: 0.3,
+        topP: 0.9,
+      ),
+      timeout: const Duration(seconds: 30),
+    );
+
+    return response.text.trim();
+  } on GenerationException catch (error) {
+    throw Exception('Text generation failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Not applicable. <code>generate()</code> returns a complete response. For streaming, use:</p>
+      <pre className="code-block"><code>{`await for (final chunk in edgeVeda.generateStream('Tell me a short story')) {
+  if (!chunk.isFinal) {
+    stdout.write(chunk.token);
+  }
+}`}</code></pre>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>generate()</code> requires a successfully initialized <code>EdgeVeda</code> instance.</li>
+        <li>The method validates that <code>prompt</code> is not empty.</li>
+        <li>The method uses <code>generateStream()</code> internally and buffers all non-final token chunks.</li>
+        <li>The final response includes measured latency and completion token count.</li>
+        <li>Because it depends on <code>generateStream()</code>, only one active streaming operation should run per <code>EdgeVeda</code> instance.</li>
+        <li>Confidence and cloud-handoff metadata depend on the selected <code>GenerateOptions</code>.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Higher values increase latency and battery use.</td>
+              <td>Set the lowest acceptable value for the task.</td>
+            </tr>
+            <tr>
+              <td>Model size</td>
+              <td>Larger models may improve quality but increase memory and latency.</td>
+              <td>Use Model Advisor or device-specific defaults.</td>
+            </tr>
+            <tr>
+              <td>Context length</td>
+              <td>Longer prompts consume context and can increase compute time.</td>
+              <td>Keep prompts concise and summarize long context.</td>
+            </tr>
+            <tr>
+              <td>GPU / Metal usage</td>
+              <td>Improves throughput on supported Apple devices.</td>
+              <td>Test on physical devices in release/profile mode.</td>
+            </tr>
+            <tr>
+              <td>Timeout</td>
+              <td>Prevents long blocking calls.</td>
+              <td>Use <code>timeout</code> for user-facing interactions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Yes</td>
+              <td>Best suited for natural language responses.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No for text generation</td>
+              <td>Use <code>embed()</code> for embeddings.</td>
+            </tr>
+            <tr>
+              <td>Tool-calling model</td>
+              <td>Partial</td>
+              <td>Use <code>ChatSession.sendWithTools()</code> for multi-round tool execution.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No for this method</td>
+              <td>Use vision APIs for image inputs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target for sustained on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior may be much slower.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate model paths and sandbox access.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Validate on target hardware before publishing performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency is not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: prompt text and generation options.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file and runtime cache/state.</li>
+        <li>Sensitive data considerations: avoid logging user prompts or full generated outputs if they may contain private data.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Prompt cannot be empty</code></td>
+              <td>Empty or whitespace-only prompt passed to the method.</td>
+              <td>Validate the prompt before calling <code>generate()</code>.</td>
+            </tr>
+            <tr>
+              <td>Generation times out</td>
+              <td>Large prompt, high <code>maxTokens</code>, slow device, or thermal pressure.</td>
+              <td>Reduce <code>maxTokens</code>, simplify the prompt, use streaming, or increase timeout.</td>
+            </tr>
+            <tr>
+              <td>Repeated or low-quality output</td>
+              <td>Wrong chat template/model or too-high sampling randomness.</td>
+              <td>Use <code>ChatSession</code> with the correct template or lower <code>temperature</code>.</td>
+            </tr>
+            <tr>
+              <td>Worker error</td>
+              <td>The persistent streaming worker failed to spawn or load the model.</td>
+              <td>Reinitialize the runtime or restart the app-level session.</td>
+            </tr>
+            <tr>
+              <td>UI appears frozen</td>
+              <td>The app waits for full response before updating UI.</td>
+              <td>Use <code>generateStream()</code> for progressive rendering.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li>[<code>EdgeVeda.init()</code>](./init.md) — initializes the runtime before generation.</li>
+        <li>[<code>EdgeVeda.generateStream()</code>](./generate-stream.md) — streams tokens for progressive UI.</li>
+        <li>[<code>ChatSession.sendStream()</code>](../chat-session/send-stream.md) — handles multi-turn chat state.</li>
+        <li>[<code>ChatSession.sendWithTools()</code>](../chat-session/send-with-tools.md) — handles tool-calling workflows.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaGenerateUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>generate()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Text generation</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No; для token streaming використовуйте <code>generateStream()</code></td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<GenerateResponse> generate(
+  String prompt, {
+  GenerateOptions? options,
+  Duration? timeout,
+});`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>generate()</code> передає prompt локальній моделі та повертає повний <code>GenerateResponse</code>. Усередині метод іде через той самий persistent <code>StreamingWorker</code>, що й <code>generateStream()</code>, збирає emitted tokens у buffer і повертає final text з generation metadata.</p>
+      <p>Метод асинхронний і виконує inference on device. Network call не потрібен.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>generate()</code>, коли потрібно:</p>
+      <ul>
+        <li>отримати повну відповідь перед оновленням UI;</li>
+        <li>виконати короткі assistant, summarization, classification або transformation tasks;</li>
+        <li>застосувати timeout до blocking generation request;</li>
+        <li>уникнути ручної обробки stream у простих flows.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>потрібен token-by-token rendering у chat UI; використовуйте <code>generateStream()</code>;</li>
+        <li>інший stream уже active на тому самому <code>EdgeVeda</code> instance;</li>
+        <li>потрібна multi-turn conversation state; розгляньте <code>ChatSession</code>;</li>
+        <li>потрібні structured tool-calling loops; розгляньте <code>ChatSession.sendWithTools()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> успішно завершився;</li>
+        <li>prompt не порожній;</li>
+        <li>вибрана модель підходить для prompt style і expected output;</li>
+        <li><code>GenerateOptions</code> values у supported ranges;</li>
+        <li>застосунок може обробити latency до повної відповіді, особливо для великого <code>maxTokens</code>;</li>
+        <li>на цьому runtime instance немає active streaming operation.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Input text для локальної моделі.</td>
+              <td>Не має бути empty. Тримайте prompt у межах configured context length.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions()</code></td>
+              <td>Керує sampling, token limit, system prompt, JSON/grammar behavior і confidence tracking.</td>
+              <td>Невалідні значення можуть кинути <code>ConfigurationException</code>.</td>
+            </tr>
+            <tr>
+              <td><code>timeout</code></td>
+              <td><code>Duration?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional maximum duration для complete generation call.</td>
+              <td>Якщо перевищено, метод кидає <code>GenerationException</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Common <code>GenerateOptions</code> fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>systemPrompt</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional system-level instruction.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td><code>int</code></td>
+              <td><code>512</code></td>
+              <td>Максимальна кількість generated tokens.</td>
+            </tr>
+            <tr>
+              <td><code>temperature</code></td>
+              <td><code>double</code></td>
+              <td><code>0.7</code></td>
+              <td>Sampling randomness. Нижче значення — більш deterministic output.</td>
+            </tr>
+            <tr>
+              <td><code>topP</code></td>
+              <td><code>double</code></td>
+              <td><code>0.9</code></td>
+              <td>Nucleus sampling threshold.</td>
+            </tr>
+            <tr>
+              <td><code>topK</code></td>
+              <td><code>int</code></td>
+              <td><code>40</code></td>
+              <td>Обмежує sampling топ-K кандидатами.</td>
+            </tr>
+            <tr>
+              <td><code>repeatPenalty</code></td>
+              <td><code>double</code></td>
+              <td><code>1.1</code></td>
+              <td>Зменшує повтори в output.</td>
+            </tr>
+            <tr>
+              <td><code>stopSequences</code></td>
+              <td><code>List&lt;String&gt;</code></td>
+              <td><code>[]</code></td>
+              <td>Stop sequences для early termination.</td>
+            </tr>
+            <tr>
+              <td><code>jsonMode</code></td>
+              <td><code>bool</code></td>
+              <td><code>false</code></td>
+              <td>Запитує valid JSON output.</td>
+            </tr>
+            <tr>
+              <td><code>grammarStr</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional GBNF grammar для constrained decoding.</td>
+            </tr>
+            <tr>
+              <td><code>grammarRoot</code></td>
+              <td><code>String?</code></td>
+              <td><code>null</code></td>
+              <td>Optional root rule для grammar.</td>
+            </tr>
+            <tr>
+              <td><code>confidenceThreshold</code></td>
+              <td><code>double</code></td>
+              <td><code>0.0</code></td>
+              <td>Вмикає confidence tracking і cloud-handoff signaling, якщо більше нуля.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Future&lt;GenerateResponse&gt;</code></p>
+      <p>Future повертає complete generated response.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>text</code></td>
+              <td><code>String</code></td>
+              <td>Повний generated text content.</td>
+            </tr>
+            <tr>
+              <td><code>promptTokens</code></td>
+              <td><code>int</code></td>
+              <td>Кількість prompt tokens, reported by response.</td>
+            </tr>
+            <tr>
+              <td><code>completionTokens</code></td>
+              <td><code>int</code></td>
+              <td>Кількість generated tokens, collected from stream.</td>
+            </tr>
+            <tr>
+              <td><code>latencyMs</code></td>
+              <td><code>int?</code></td>
+              <td>Total generation duration у milliseconds.</td>
+            </tr>
+            <tr>
+              <td><code>avgConfidence</code></td>
+              <td><code>double?</code></td>
+              <td>Average confidence across generated tokens, якщо confidence tracking enabled.</td>
+            </tr>
+            <tr>
+              <td><code>needsCloudHandoff</code></td>
+              <td><code>bool</code></td>
+              <td>Чи модель сигналізує, що може бути потрібен cloud handoff.</td>
+            </tr>
+            <tr>
+              <td><code>tokensPerSecond</code></td>
+              <td><code>double?</code></td>
+              <td>Derived throughput, якщо доступні latency і token counts.</td>
+            </tr>
+            <tr>
+              <td><code>totalTokens</code></td>
+              <td><code>int</code></td>
+              <td>Prompt і completion tokens разом.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>GenerationException</code></td>
+              <td>Prompt empty, generation timeout, worker failure або streaming conflict.</td>
+              <td>Валідуйте input, уникайте concurrent streams, retry with lower <code>maxTokens</code>, або покажіть failure state.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>Одне або кілька <code>GenerateOptions</code> значень за межами allowed ranges.</td>
+              <td>Обмежте UI controls і валідуйте options перед викликом.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime не ініціалізований або сталася SDK-level failure.</td>
+              <td>Спочатку викличте <code>init()</code> і обробіть typed exceptions.</td>
+            </tr>
+            <tr>
+              <td>Stream-propagated errors</td>
+              <td>Оскільки <code>generate()</code> споживає <code>generateStream()</code>, stream errors можуть проявлятися як generation failures.</td>
+              <td>Логуйте underlying details і відновлюйтесь на application level.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  useGpu: true,
+));
+
+final response = await edgeVeda.generate(
+  'Explain on-device AI in two sentences.',
+);
+
+print(response.text);`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> summarizeNote(EdgeVeda edgeVeda, String note) async {
+  if (note.trim().isEmpty) {
+    throw ArgumentError('note must not be empty');
+  }
+
+  try {
+    final response = await edgeVeda.generate(
+      'Summarize this note for a product manager:\\n\\n$note',
+      options: const GenerateOptions(
+        maxTokens: 180,
+        temperature: 0.3,
+        topP: 0.9,
+      ),
+      timeout: const Duration(seconds: 30),
+    );
+
+    return response.text.trim();
+  } on GenerationException catch (error) {
+    throw Exception('Text generation failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Не застосовується. <code>generate()</code> повертає complete response. Для streaming використовуйте:</p>
+      <pre className="code-block"><code>{`await for (final chunk in edgeVeda.generateStream('Tell me a short story')) {
+  if (!chunk.isFinal) {
+    stdout.write(chunk.token);
+  }
+}`}</code></pre>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>generate()</code> потребує успішно ініціалізований <code>EdgeVeda</code> instance.</li>
+        <li>Метод перевіряє, що <code>prompt</code> не порожній.</li>
+        <li>Метод internally використовує <code>generateStream()</code> і буферизує всі non-final token chunks.</li>
+        <li>Final response включає measured latency і completion token count.</li>
+        <li>Оскільки метод залежить від <code>generateStream()</code>, на одному <code>EdgeVeda</code> instance має бути лише одна active streaming operation.</li>
+        <li>Confidence і cloud-handoff metadata залежать від selected <code>GenerateOptions</code>.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Більші значення збільшують latency і battery use.</td>
+              <td>Задавайте найменше acceptable value для task.</td>
+            </tr>
+            <tr>
+              <td>Model size</td>
+              <td>Більші моделі можуть покращити якість, але збільшують memory і latency.</td>
+              <td>Використовуйте Model Advisor або device-specific defaults.</td>
+            </tr>
+            <tr>
+              <td>Context length</td>
+              <td>Довші prompts витрачають context і можуть збільшити compute time.</td>
+              <td>Тримайте prompts concise і summarize long context.</td>
+            </tr>
+            <tr>
+              <td>GPU / Metal usage</td>
+              <td>Покращує throughput на supported Apple devices.</td>
+              <td>Тестуйте на physical devices у release/profile mode.</td>
+            </tr>
+            <tr>
+              <td>Timeout</td>
+              <td>Запобігає довгим blocking calls.</td>
+              <td>Використовуйте <code>timeout</code> для user-facing interactions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Yes</td>
+              <td>Основний сценарій — natural language responses.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No for text generation</td>
+              <td>Для embeddings використовуйте <code>embed()</code>.</td>
+            </tr>
+            <tr>
+              <td>Tool-calling model</td>
+              <td>Partial</td>
+              <td>Для multi-round tool execution використовуйте <code>ChatSession.sendWithTools()</code>.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No for this method</td>
+              <td>Для image inputs використовуйте vision APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target для sustained on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior може бути значно повільнішим.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте model paths і sandbox access.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Валідуйте на target hardware перед performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency не орієнтована на web.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: prompt text і generation options.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file і runtime cache/state.</li>
+        <li>Sensitive data considerations: не логуйте user prompts або full generated outputs, якщо вони можуть містити private data.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Prompt cannot be empty</code></td>
+              <td>Empty або whitespace-only prompt.</td>
+              <td>Валідуйте prompt перед <code>generate()</code>.</td>
+            </tr>
+            <tr>
+              <td>Generation times out</td>
+              <td>Large prompt, high <code>maxTokens</code>, slow device або thermal pressure.</td>
+              <td>Зменште <code>maxTokens</code>, спростіть prompt, використайте streaming або збільште timeout.</td>
+            </tr>
+            <tr>
+              <td>Repeated або low-quality output</td>
+              <td>Неправильний chat template/model або зависока sampling randomness.</td>
+              <td>Використайте <code>ChatSession</code> з correct template або зменште <code>temperature</code>.</td>
+            </tr>
+            <tr>
+              <td>Worker error</td>
+              <td>Persistent streaming worker не зміг spawn/load model.</td>
+              <td>Reinitialize runtime або restart app-level session.</td>
+            </tr>
+            <tr>
+              <td>UI appears frozen</td>
+              <td>App чекає full response перед UI update.</td>
+              <td>Використайте <code>generateStream()</code> для progressive rendering.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li>[<code>EdgeVeda.init()</code>](./init.md) — ініціалізує runtime перед generation.</li>
+        <li>[<code>EdgeVeda.generateStream()</code>](./generate-stream.md) — стрімить tokens для progressive UI.</li>
+        <li>[<code>ChatSession.sendStream()</code>](../chat-session/send-stream.md) — працює з multi-turn chat state.</li>
+        <li>[<code>ChatSession.sendWithTools()</code>](../chat-session/send-with-tools.md) — працює з tool-calling workflows.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaGenerateStreamEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>generateStream()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Streaming text generation</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Stream<TokenChunk> generateStream(
+  String prompt, {
+  GenerateOptions? options,
+  CancelToken? cancelToken,
+});`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>generateStream()</code> sends a prompt to the local model and returns a Dart <code>Stream&lt;TokenChunk&gt;</code>. The stream yields token chunks as they are generated. The final chunk has <code>isFinal == true</code> and an empty token to signal completion.</p>
+      <p>The method uses a persistent <code>StreamingWorker</code>. If the worker is not active, the method spawns it and loads the configured model. If the worker is already active, it reuses it.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>generateStream()</code> when you need to:</p>
+      <ul>
+        <li>update a chat or assistant UI token by token;</li>
+        <li>allow the user to cancel generation mid-stream;</li>
+        <li>process generated output incrementally;</li>
+        <li>track per-token confidence or cloud-handoff signals.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>you only need the final text and simpler code; use <code>generate()</code>;</li>
+        <li>another stream is already active on the same <code>EdgeVeda</code> instance;</li>
+        <li>the runtime has not been initialized with <code>init()</code>;</li>
+        <li>you need model-level multi-turn memory; use <code>ChatSession</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> has completed successfully;</li>
+        <li>the prompt is not empty;</li>
+        <li>no other <code>generateStream()</code> call is active on the same <code>EdgeVeda</code> instance;</li>
+        <li><code>GenerateOptions</code> values are valid;</li>
+        <li>the app is ready to handle stream errors;</li>
+        <li>the UI handles final chunks and cancellation correctly.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Input text passed to the local model.</td>
+              <td>Must not be empty.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions()</code></td>
+              <td>Controls token limit, sampling, grammar constraints, JSON mode, and confidence tracking.</td>
+              <td>Values are validated before streaming starts.</td>
+            </tr>
+            <tr>
+              <td><code>cancelToken</code></td>
+              <td><code>CancelToken?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional cancellation token for stopping generation mid-stream.</td>
+              <td>Calling <code>cancel()</code> stops token generation as soon as the worker observes cancellation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Stream&lt;TokenChunk&gt;</code></p>
+      <p>A stream that emits token chunks until the final chunk is produced, cancellation happens, or an error is thrown.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>token</code></td>
+              <td><code>String</code></td>
+              <td>Token text content for this chunk. The final chunk usually has an empty token.</td>
+            </tr>
+            <tr>
+              <td><code>index</code></td>
+              <td><code>int</code></td>
+              <td>Token index in the generated sequence.</td>
+            </tr>
+            <tr>
+              <td><code>isFinal</code></td>
+              <td><code>bool</code></td>
+              <td><code>true</code> when the stream has completed.</td>
+            </tr>
+            <tr>
+              <td><code>confidence</code></td>
+              <td><code>double?</code></td>
+              <td>Per-token confidence score when confidence tracking is enabled.</td>
+            </tr>
+            <tr>
+              <td><code>needsCloudHandoff</code></td>
+              <td><code>bool</code></td>
+              <td>Whether cloud handoff is recommended at this point.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>GenerationException</code></td>
+              <td>Prompt is empty, streaming is already active, worker spawn fails, worker init fails, or streaming fails.</td>
+              <td>Validate input, serialize generation calls, retry after cancellation, or reinitialize the runtime.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>Invalid <code>GenerateOptions</code> values are passed.</td>
+              <td>Clamp values in the UI and validate options before starting the stream.</td>
+            </tr>
+            <tr>
+              <td>Stream errors</td>
+              <td>Runtime failures are propagated through the stream.</td>
+              <td>Wrap <code>await for</code> in <code>try/catch</code> and update the UI state on failure.</td>
+            </tr>
+            <tr>
+              <td>Cancellation state</td>
+              <td>User cancels generation through <code>CancelToken</code>.</td>
+              <td>Treat cancellation as a normal user action; preserve partial output if useful.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  useGpu: true,
+));
+
+await for (final chunk in edgeVeda.generateStream(
+  'Explain what on-device AI means.',
+)) {
+  if (!chunk.isFinal) {
+    stdout.write(chunk.token);
+  }
+}`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> streamIntoBuffer(EdgeVeda edgeVeda, String prompt) async {
+  final cancelToken = CancelToken();
+  final buffer = StringBuffer();
+
+  try {
+    await for (final chunk in edgeVeda.generateStream(
+      prompt,
+      options: const GenerateOptions(
+        maxTokens: 256,
+        temperature: 0.4,
+        topP: 0.9,
+      ),
+      cancelToken: cancelToken,
+    )) {
+      if (chunk.isFinal) {
+        break;
+      }
+
+      buffer.write(chunk.token);
+
+      if (chunk.needsCloudHandoff) {
+        // Optional: surface low-confidence state to the app.
+      }
+    }
+
+    return buffer.toString();
+  } on GenerationException catch (error) {
+    throw Exception('Streaming generation failed: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example with cancellation</h3>
+      <pre className="code-block"><code>{`final cancelToken = CancelToken();
+
+final stream = edgeVeda.generateStream(
+  'Write a short story about a robot gardener.',
+  cancelToken: cancelToken,
+);
+
+await for (final chunk in stream) {
+  if (chunk.isFinal) {
+    break;
+  }
+
+  stdout.write(chunk.token);
+
+  if (shouldStopGeneration()) {
+    cancelToken.cancel();
+    break;
+  }
+}`}</code></pre>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>generateStream()</code> requires a successfully initialized <code>EdgeVeda</code> instance.</li>
+        <li>Only one streaming operation can be active at a time on the same instance.</li>
+        <li>The method lazily creates and initializes a persistent <code>StreamingWorker</code> if needed.</li>
+        <li>The worker uses the <code>EdgeVedaConfig</code> captured during <code>init()</code>.</li>
+        <li>The method emits <code>TokenChunk</code> objects and uses a final chunk with <code>isFinal == true</code>.</li>
+        <li>Runtime errors are propagated as stream errors.</li>
+        <li>Cancellation removes the cancellation listener in the <code>finally</code> path.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>First stream after init</td>
+              <td>May include worker spawn and model load time.</td>
+              <td>Show a "loading model" or "starting" state.</td>
+            </tr>
+            <tr>
+              <td>Subsequent streams</td>
+              <td>Can reuse the active worker.</td>
+              <td>Keep the runtime alive for multi-request sessions.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Directly affects duration and energy use.</td>
+              <td>Set task-specific limits.</td>
+            </tr>
+            <tr>
+              <td>UI update frequency</td>
+              <td>Updating UI on every token can be expensive.</td>
+              <td>Batch UI updates if rendering becomes costly.</td>
+            </tr>
+            <tr>
+              <td>Concurrent workloads</td>
+              <td>Streaming is single-active per <code>EdgeVeda</code> instance.</td>
+              <td>Queue user requests or create controlled runtime instances.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Yes</td>
+              <td>Primary use case for streaming text generation.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No</td>
+              <td>Use <code>embed()</code> for embeddings.</td>
+            </tr>
+            <tr>
+              <td>Tool-capable chat model</td>
+              <td>Partial</td>
+              <td>For automatic tool loops, prefer <code>ChatSession.sendWithTools()</code>.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No for this method</td>
+              <td>Use vision APIs for image input.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target for Metal-accelerated streaming.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only, slower, not representative for performance.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate model paths and sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Test on target devices before publishing performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency is not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: prompt text and generation options.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file and runtime worker state.</li>
+        <li>Sensitive data considerations: do not log live user prompts or token chunks unless explicitly needed and safe.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Streaming already in progress</code></td>
+              <td>Another stream is active on the same <code>EdgeVeda</code> instance.</td>
+              <td>Wait for completion, cancel the active stream, or queue the next request.</td>
+            </tr>
+            <tr>
+              <td>No tokens appear for a while</td>
+              <td>First call is spawning the worker and loading the model.</td>
+              <td>Show progress text and test release/profile builds on device.</td>
+            </tr>
+            <tr>
+              <td>Stream stops early</td>
+              <td><code>CancelToken</code> was cancelled or the model hit a stop sequence.</td>
+              <td>Confirm app cancellation logic and <code>stopSequences</code>.</td>
+            </tr>
+            <tr>
+              <td>Stream throws an error</td>
+              <td>Worker spawn/init failed or native runtime failed.</td>
+              <td>Catch stream errors, log details, and reinitialize if needed.</td>
+            </tr>
+            <tr>
+              <td>UI stutters</td>
+              <td>Rendering updates for every token is too frequent.</td>
+              <td>Batch token updates or throttle UI refresh.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li>[<code>EdgeVeda.init()</code>](./init.md) — initializes runtime configuration before streaming.</li>
+        <li>[<code>EdgeVeda.generate()</code>](./generate.md) — collects stream output and returns a complete response.</li>
+        <li>[<code>CancelToken</code>](../core/cancel-token.md) — cancels streaming generation.</li>
+        <li>[<code>ChatSession.sendStream()</code>](../chat-session/send-stream.md) — streams within a multi-turn chat session.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaGenerateStreamUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>generateStream()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Core inference / Streaming text generation</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Stream<TokenChunk> generateStream(
+  String prompt, {
+  GenerateOptions? options,
+  CancelToken? cancelToken,
+});`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>generateStream()</code> передає prompt локальній моделі та повертає Dart <code>Stream&lt;TokenChunk&gt;</code>. Stream видає token chunks у процесі генерації. Final chunk має <code>isFinal == true</code> і порожній token, що сигналізує completion.</p>
+      <p>Метод використовує persistent <code>StreamingWorker</code>. Якщо worker не активний, метод spawn-ить його і завантажує configured model. Якщо worker already active, він reuse-иться.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>generateStream()</code>, коли потрібно:</p>
+      <ul>
+        <li>оновлювати chat або assistant UI token by token;</li>
+        <li>дозволити користувачу cancel generation mid-stream;</li>
+        <li>обробляти generated output incrementally;</li>
+        <li>відстежувати per-token confidence або cloud-handoff signals.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>потрібен лише final text і простіший код; використовуйте <code>generate()</code>;</li>
+        <li>інший stream уже active на тому самому <code>EdgeVeda</code> instance;</li>
+        <li>runtime не ініціалізовано через <code>init()</code>;</li>
+        <li>потрібна model-level multi-turn memory; використовуйте <code>ChatSession</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> успішно завершився;</li>
+        <li>prompt не порожній;</li>
+        <li>на тому самому <code>EdgeVeda</code> instance немає іншого active <code>generateStream()</code> call;</li>
+        <li><code>GenerateOptions</code> values валідні;</li>
+        <li>app готовий обробляти stream errors;</li>
+        <li>UI коректно обробляє final chunks і cancellation.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Input text для локальної моделі.</td>
+              <td>Не має бути empty.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions()</code></td>
+              <td>Керує token limit, sampling, grammar constraints, JSON mode і confidence tracking.</td>
+              <td>Значення валідовуються перед start streaming.</td>
+            </tr>
+            <tr>
+              <td><code>cancelToken</code></td>
+              <td><code>CancelToken?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional cancellation token для stop generation mid-stream.</td>
+              <td><code>cancel()</code> зупиняє token generation, коли worker observe-ить cancellation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Stream&lt;TokenChunk&gt;</code></p>
+      <p>Stream emits token chunks, доки не буде final chunk, cancellation або error.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>token</code></td>
+              <td><code>String</code></td>
+              <td>Token text content для цього chunk. Final chunk зазвичай має empty token.</td>
+            </tr>
+            <tr>
+              <td><code>index</code></td>
+              <td><code>int</code></td>
+              <td>Token index у generated sequence.</td>
+            </tr>
+            <tr>
+              <td><code>isFinal</code></td>
+              <td><code>bool</code></td>
+              <td><code>true</code>, коли stream завершився.</td>
+            </tr>
+            <tr>
+              <td><code>confidence</code></td>
+              <td><code>double?</code></td>
+              <td>Per-token confidence score, якщо confidence tracking enabled.</td>
+            </tr>
+            <tr>
+              <td><code>needsCloudHandoff</code></td>
+              <td><code>bool</code></td>
+              <td>Чи recommended cloud handoff на цьому етапі.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>GenerationException</code></td>
+              <td>Prompt empty, streaming already active, worker spawn fails, worker init fails або streaming fails.</td>
+              <td>Валідуйте input, serialize generation calls, retry after cancellation або reinitialize runtime.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code></td>
+              <td>Invalid <code>GenerateOptions</code> values.</td>
+              <td>Обмежте значення в UI і валідуйте options before stream.</td>
+            </tr>
+            <tr>
+              <td>Stream errors</td>
+              <td>Runtime failures передаються через stream.</td>
+              <td>Обгорніть <code>await for</code> у <code>try/catch</code> і оновіть UI state on failure.</td>
+            </tr>
+            <tr>
+              <td>Cancellation state</td>
+              <td>User cancels generation through <code>CancelToken</code>.</td>
+              <td>Трактуйте cancellation як нормальну user action; partial output можна зберегти.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: modelPath,
+  contextLength: 2048,
+  useGpu: true,
+));
+
+await for (final chunk in edgeVeda.generateStream(
+  'Explain what on-device AI means.',
+)) {
+  if (!chunk.isFinal) {
+    stdout.write(chunk.token);
+  }
+}`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> streamIntoBuffer(EdgeVeda edgeVeda, String prompt) async {
+  final cancelToken = CancelToken();
+  final buffer = StringBuffer();
+
+  try {
+    await for (final chunk in edgeVeda.generateStream(
+      prompt,
+      options: const GenerateOptions(
+        maxTokens: 256,
+        temperature: 0.4,
+        topP: 0.9,
+      ),
+      cancelToken: cancelToken,
+    )) {
+      if (chunk.isFinal) {
+        break;
+      }
+
+      buffer.write(chunk.token);
+
+      if (chunk.needsCloudHandoff) {
+        // Optional: surface low-confidence state to the app.
+      }
+    }
+
+    return buffer.toString();
+  } on GenerationException catch (error) {
+    throw Exception('Streaming generation failed: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example with cancellation</h3>
+      <pre className="code-block"><code>{`final cancelToken = CancelToken();
+
+final stream = edgeVeda.generateStream(
+  'Write a short story about a robot gardener.',
+  cancelToken: cancelToken,
+);
+
+await for (final chunk in stream) {
+  if (chunk.isFinal) {
+    break;
+  }
+
+  stdout.write(chunk.token);
+
+  if (shouldStopGeneration()) {
+    cancelToken.cancel();
+    break;
+  }
+}`}</code></pre>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>generateStream()</code> потребує успішно ініціалізований <code>EdgeVeda</code> instance.</li>
+        <li>На одному instance одночасно може бути тільки один active streaming operation.</li>
+        <li>Метод lazy створює й ініціалізує persistent <code>StreamingWorker</code>, якщо потрібно.</li>
+        <li>Worker використовує <code>EdgeVedaConfig</code>, збережений під час <code>init()</code>.</li>
+        <li>Метод emits <code>TokenChunk</code> objects і використовує final chunk з <code>isFinal == true</code>.</li>
+        <li>Runtime errors передаються як stream errors.</li>
+        <li>Cancellation listener видаляється у <code>finally</code> path.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>First stream after init</td>
+              <td>Може включати worker spawn і model load time.</td>
+              <td>Покажіть "loading model" або "starting" state.</td>
+            </tr>
+            <tr>
+              <td>Subsequent streams</td>
+              <td>Можуть reuse active worker.</td>
+              <td>Тримайте runtime alive для multi-request sessions.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Прямо впливає на duration і energy use.</td>
+              <td>Задавайте task-specific limits.</td>
+            </tr>
+            <tr>
+              <td>UI update frequency</td>
+              <td>UI update на кожен token може бути дорогим.</td>
+              <td>Batch UI updates, якщо rendering стає costly.</td>
+            </tr>
+            <tr>
+              <td>Concurrent workloads</td>
+              <td>Streaming single-active per <code>EdgeVeda</code> instance.</td>
+              <td>Queue user requests або створюйте controlled runtime instances.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Yes</td>
+              <td>Основний сценарій для streaming text generation.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No</td>
+              <td>Для embeddings використовуйте <code>embed()</code>.</td>
+            </tr>
+            <tr>
+              <td>Tool-capable chat model</td>
+              <td>Partial</td>
+              <td>Для automatic tool loops краще <code>ChatSession.sendWithTools()</code>.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No for this method</td>
+              <td>Для image input використовуйте vision APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target для Metal-accelerated streaming.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only, повільніший, не репрезентативний для performance.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте model paths і sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Тестуйте на target devices перед performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency не орієнтована на web.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: prompt text і generation options.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file і runtime worker state.</li>
+        <li>Sensitive data considerations: не логуйте live user prompts або token chunks, якщо це не потрібно й небезпечно.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Streaming already in progress</code></td>
+              <td>Інший stream active на тому самому <code>EdgeVeda</code> instance.</td>
+              <td>Дочекайтесь completion, cancel active stream або queue next request.</td>
+            </tr>
+            <tr>
+              <td>No tokens appear for a while</td>
+              <td>First call spawn-ить worker і load-ить model.</td>
+              <td>Покажіть progress text і тестуйте release/profile builds на device.</td>
+            </tr>
+            <tr>
+              <td>Stream stops early</td>
+              <td><code>CancelToken</code> was cancelled або model hit stop sequence.</td>
+              <td>Перевірте app cancellation logic і <code>stopSequences</code>.</td>
+            </tr>
+            <tr>
+              <td>Stream throws an error</td>
+              <td>Worker spawn/init failed або native runtime failed.</td>
+              <td>Catch stream errors, log details і reinitialize if needed.</td>
+            </tr>
+            <tr>
+              <td>UI stutters</td>
+              <td>Rendering updates на кожен token занадто часті.</td>
+              <td>Batch token updates або throttle UI refresh.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li>[<code>EdgeVeda.init()</code>](./init.md) — ініціалізує runtime configuration перед streaming.</li>
+        <li>[<code>EdgeVeda.generate()</code>](./generate.md) — збирає stream output і повертає complete response.</li>
+        <li>[<code>CancelToken</code>](../core/cancel-token.md) — скасовує streaming generation.</li>
+        <li>[<code>ChatSession.sendStream()</code>](../chat-session/send-stream.md) — стрімить у multi-turn chat session.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaDescribeImageEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>describeImage()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Vision / Image understanding</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes — vision runtime via <code>initVision()</code></td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<String> describeImage(
+  Uint8List imageBytes, {
+  required int width,
+  required int height,
+  String prompt = 'Describe this image.',
+  GenerateOptions? options,
+});`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>describeImage()</code> validates that vision has been initialized, checks that <code>imageBytes.length == width * height * 3</code>, initializes a native vision context in a background isolate, runs visual-language inference with the supplied prompt and generation options, and returns the generated text description. The image must be RGB888 bytes, not JPEG, PNG, BGRA, or YUV420 directly.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>describeImage()</code> when you need to:</p>
+      <ul>
+        <li>describe a still image locally;</li>
+        <li>ask a visual question about an image using a custom prompt;</li>
+        <li>process converted camera frames without sending images to a server;</li>
+        <li>build accessibility, inspection, document understanding, or camera-assistant features.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>vision has not been initialized with <code>initVision()</code>;</li>
+        <li>the image is not RGB888;</li>
+        <li>you need continuous frame processing with a persistent worker; use <code>VisionWorker.describeFrame()</code>;</li>
+        <li>you need text-only generation; use <code>generate()</code> or <code>generateStream()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li><code>await edgeVeda.initVision(config)</code> has completed successfully;</li>
+        <li><code>VisionConfig.modelPath</code> points to a VLM GGUF file;</li>
+        <li><code>VisionConfig.mmprojPath</code> points to the matching multimodal projector file;</li>
+        <li><code>imageBytes.length == width * height * 3</code>;</li>
+        <li>camera or file permissions are handled by the app.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>imageBytes</code></td>
+              <td><code>Uint8List</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>RGB888 image bytes.</td>
+              <td>Must contain exactly <code>width * height * 3</code> bytes.</td>
+            </tr>
+            <tr>
+              <td><code>width</code></td>
+              <td><code>int</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Image width in pixels.</td>
+              <td>Must match <code>imageBytes</code>.</td>
+            </tr>
+            <tr>
+              <td><code>height</code></td>
+              <td><code>int</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Image height in pixels.</td>
+              <td>Must match <code>imageBytes</code>.</td>
+            </tr>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>No</td>
+              <td><code>'Describe this image.'</code></td>
+              <td>Text prompt for the VLM.</td>
+              <td>Use task-specific prompts for better output.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions(maxTokens: 256)</code></td>
+              <td>Generation controls such as <code>maxTokens</code>, <code>temperature</code>, <code>topP</code>, <code>topK</code>, and <code>repeatPenalty</code>.</td>
+              <td>Some text-only options may not affect vision output.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Future&lt;String&gt;</code> — a future that resolves to the generated text description.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>—</td>
+              <td><code>String</code></td>
+              <td>Generated text description of the image.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>VisionException</code></td>
+              <td>Vision is not initialized, image byte count mismatches RGB size, native vision init fails, or native describe fails.</td>
+              <td>Call <code>initVision()</code>, validate image format/dimensions, and use compatible VLM files.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code> / <code>EdgeVedaException</code></td>
+              <td>Invalid generation options or SDK-level failure.</td>
+              <td>Validate options and handle typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Vision model/projector or image processing exceeds memory.</td>
+              <td>Reduce resolution, choose a smaller VLM, or lower memory settings.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`await edgeVeda.initVision(VisionConfig(
+  modelPath: vlmModelPath,
+  mmprojPath: mmprojPath,
+  numThreads: 4,
+  useGpu: true,
+));
+
+final description = await edgeVeda.describeImage(
+  rgbBytes,
+  width: 640,
+  height: 480,
+  prompt: 'What objects are visible in this image?',
+);
+
+print(description);`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> describeCameraFrame(
+  EdgeVeda edgeVeda,
+  Uint8List rgbBytes,
+  int width,
+  int height,
+) async {
+  final expectedBytes = width * height * 3;
+  if (rgbBytes.length != expectedBytes) {
+    throw ArgumentError('Expected $expectedBytes RGB bytes, got \${rgbBytes.length}');
+  }
+
+  try {
+    return await edgeVeda.describeImage(
+      rgbBytes,
+      width: width,
+      height: height,
+      prompt: 'Describe the scene and mention safety-relevant objects.',
+      options: const GenerateOptions(maxTokens: 120, temperature: 0.2),
+    );
+  } on VisionException catch (error) {
+    throw Exception('Vision inference failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Not applicable. <code>describeImage()</code> does not emit a stream.</p>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>describeImage()</code> uses the vision configuration set by <code>initVision()</code>.</li>
+        <li>Vision context is separate from the core text runtime initialized by <code>init()</code>.</li>
+        <li>The method expects RGB888 bytes and validates byte length before native inference.</li>
+        <li>Native vision work runs in a background isolate to avoid blocking the UI.</li>
+        <li>The method returns text only; timing details are available from lower-level <code>VisionWorker.describeFrame()</code> responses.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Image resolution</td>
+              <td>Larger images increase encoding and inference cost.</td>
+              <td>Start with 640px or lower for mobile vision tasks.</td>
+            </tr>
+            <tr>
+              <td>VLM size</td>
+              <td>Larger VLMs increase memory and latency.</td>
+              <td>Use SmolVLM-class models for mobile-first scenarios.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Higher values increase decode time.</td>
+              <td>Use task-specific short limits for camera flows.</td>
+            </tr>
+            <tr>
+              <td>Repeated frames</td>
+              <td>One-off calls may reinitialize context.</td>
+              <td>Use <code>VisionWorker.describeFrame()</code> for continuous vision.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF vision-language model + mmproj</td>
+              <td>Yes</td>
+              <td>Requires matching VLM and multimodal projector files.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>No for image input</td>
+              <td>Use text generation APIs for text-only prompts.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No</td>
+              <td>Use embeddings APIs for text vectors.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Use image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target for on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior may be slower.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate file access and sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Test on target hardware before publishing performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency is not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: RGB image bytes and prompt text.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: VLM model and mmproj files.</li>
+        <li>Sensitive data considerations: images may contain faces, documents, screens, addresses, or other private content; avoid logging raw images or generated descriptions unless needed.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Vision not initialized</code></td>
+              <td><code>initVision()</code> was not called or failed.</td>
+              <td>Initialize vision first and verify both model files exist.</td>
+            </tr>
+            <tr>
+              <td>Byte count mismatch</td>
+              <td>Image is not RGB888 or dimensions are wrong.</td>
+              <td>Convert camera frames to RGB888 and pass correct width/height.</td>
+            </tr>
+            <tr>
+              <td>Slow response</td>
+              <td>Image is too large or VLM is large.</td>
+              <td>Reduce resolution or lower <code>maxTokens</code>.</td>
+            </tr>
+            <tr>
+              <td>Poor description</td>
+              <td>Prompt is too vague or VLM is not suited to the task.</td>
+              <td>Use a targeted prompt and compatible VLM/mmproj pair.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li><code>EdgeVeda.initVision()</code> — initializes the VLM and mmproj configuration.</li>
+        <li><code>EdgeVeda.disposeVision()</code> — releases vision resources.</li>
+        <li><code>VisionWorker.describeFrame()</code> — lower-level persistent-worker API with timing metadata.</li>
+        <li><code>CameraUtils.convertBgraToRgb()</code> / <code>convertYuv420ToRgb()</code> — converts camera data to RGB888.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaDescribeImageUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>describeImage()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Vision / Image understanding</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes — vision runtime через <code>initVision()</code></td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<String> describeImage(
+  Uint8List imageBytes, {
+  required int width,
+  required int height,
+  String prompt = 'Describe this image.',
+  GenerateOptions? options,
+});`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>describeImage()</code> перевіряє, що vision initialized, перевіряє <code>imageBytes.length == width * height * 3</code>, ініціалізує native vision context у background isolate, запускає visual-language inference з prompt/options і повертає generated text description. Image має бути RGB888 bytes, а не JPEG, PNG, BGRA або YUV420 напряму.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>describeImage()</code>, коли потрібно:</p>
+      <ul>
+        <li>описати still image локально;</li>
+        <li>поставити visual question до image через custom prompt;</li>
+        <li>обробляти converted camera frames без відправки images на server;</li>
+        <li>будувати accessibility, inspection, document understanding або camera-assistant features.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>vision не ініціалізовано через <code>initVision()</code>;</li>
+        <li>image не у RGB888 format;</li>
+        <li>потрібна continuous frame processing з persistent worker; використовуйте <code>VisionWorker.describeFrame()</code>;</li>
+        <li>потрібна text-only generation; використовуйте <code>generate()</code> або <code>generateStream()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li><code>await edgeVeda.initVision(config)</code> успішно завершився;</li>
+        <li><code>VisionConfig.modelPath</code> вказує на VLM GGUF file;</li>
+        <li><code>VisionConfig.mmprojPath</code> вказує на matching multimodal projector file;</li>
+        <li><code>imageBytes.length == width * height * 3</code>;</li>
+        <li>camera/file permissions оброблені application layer.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>imageBytes</code></td>
+              <td><code>Uint8List</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>RGB888 image bytes.</td>
+              <td>Має містити рівно <code>width * height * 3</code> bytes.</td>
+            </tr>
+            <tr>
+              <td><code>width</code></td>
+              <td><code>int</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Image width in pixels.</td>
+              <td>Має відповідати <code>imageBytes</code>.</td>
+            </tr>
+            <tr>
+              <td><code>height</code></td>
+              <td><code>int</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Image height in pixels.</td>
+              <td>Має відповідати <code>imageBytes</code>.</td>
+            </tr>
+            <tr>
+              <td><code>prompt</code></td>
+              <td><code>String</code></td>
+              <td>No</td>
+              <td><code>'Describe this image.'</code></td>
+              <td>Text prompt для VLM.</td>
+              <td>Для кращого output використовуйте task-specific prompts.</td>
+            </tr>
+            <tr>
+              <td><code>options</code></td>
+              <td><code>GenerateOptions?</code></td>
+              <td>No</td>
+              <td><code>const GenerateOptions(maxTokens: 256)</code></td>
+              <td>Generation controls: <code>maxTokens</code>, <code>temperature</code>, <code>topP</code>, <code>topK</code>, <code>repeatPenalty</code>.</td>
+              <td>Деякі text-only options можуть не впливати на vision output.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Future&lt;String&gt;</code> — future, що повертає generated text description.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>—</td>
+              <td><code>String</code></td>
+              <td>Generated text description of the image.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>VisionException</code></td>
+              <td>Vision не initialized, image byte count mismatch, native vision init fails або native describe fails.</td>
+              <td>Викличте <code>initVision()</code>, validate image format/dimensions і use compatible VLM files.</td>
+            </tr>
+            <tr>
+              <td><code>ConfigurationException</code> / <code>EdgeVedaException</code></td>
+              <td>Invalid generation options або SDK-level failure.</td>
+              <td>Validate options і handle typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Vision model/projector або image processing перевищує memory.</td>
+              <td>Reduce resolution, choose smaller VLM або lower memory settings.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`await edgeVeda.initVision(VisionConfig(
+  modelPath: vlmModelPath,
+  mmprojPath: mmprojPath,
+  numThreads: 4,
+  useGpu: true,
+));
+
+final description = await edgeVeda.describeImage(
+  rgbBytes,
+  width: 640,
+  height: 480,
+  prompt: 'What objects are visible in this image?',
+);
+
+print(description);`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<String> describeCameraFrame(
+  EdgeVeda edgeVeda,
+  Uint8List rgbBytes,
+  int width,
+  int height,
+) async {
+  final expectedBytes = width * height * 3;
+  if (rgbBytes.length != expectedBytes) {
+    throw ArgumentError('Expected $expectedBytes RGB bytes, got \${rgbBytes.length}');
+  }
+
+  try {
+    return await edgeVeda.describeImage(
+      rgbBytes,
+      width: width,
+      height: height,
+      prompt: 'Describe the scene and mention safety-relevant objects.',
+      options: const GenerateOptions(maxTokens: 120, temperature: 0.2),
+    );
+  } on VisionException catch (error) {
+    throw Exception('Vision inference failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Не застосовується. <code>describeImage()</code> не повертає stream.</p>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>describeImage()</code> використовує vision configuration, встановлену через <code>initVision()</code>.</li>
+        <li>Vision context окремий від core text runtime, ініціалізованого через <code>init()</code>.</li>
+        <li>Метод очікує RGB888 bytes і валідовує byte length before native inference.</li>
+        <li>Native vision work виконується в background isolate, щоб не блокувати UI.</li>
+        <li>Метод повертає тільки text; timing details доступні через lower-level <code>VisionWorker.describeFrame()</code> responses.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Image resolution</td>
+              <td>Larger images збільшують encoding і inference cost.</td>
+              <td>Починайте з 640px або нижче для mobile vision tasks.</td>
+            </tr>
+            <tr>
+              <td>VLM size</td>
+              <td>Larger VLMs збільшують memory і latency.</td>
+              <td>Використовуйте SmolVLM-class models для mobile-first scenarios.</td>
+            </tr>
+            <tr>
+              <td><code>maxTokens</code></td>
+              <td>Higher values збільшують decode time.</td>
+              <td>Use task-specific short limits for camera flows.</td>
+            </tr>
+            <tr>
+              <td>Repeated frames</td>
+              <td>One-off calls можуть reinitialize context.</td>
+              <td>Для continuous vision використовуйте <code>VisionWorker.describeFrame()</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF vision-language model + mmproj</td>
+              <td>Yes</td>
+              <td>Requires matching VLM and multimodal projector files.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>No for image input</td>
+              <td>Use text generation APIs for text-only prompts.</td>
+            </tr>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>No</td>
+              <td>Use embeddings APIs for text vectors.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Use image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target для on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior може бути повільним.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте file access і sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Тестуйте на target hardware перед performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency не web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: RGB image bytes і prompt text.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: VLM model і mmproj files.</li>
+        <li>Sensitive data considerations: images можуть містити faces, documents, screens, addresses або private content; не логуйте raw images/generated descriptions без потреби.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Vision not initialized</code></td>
+              <td><code>initVision()</code> не викликано або failed.</td>
+              <td>Initialize vision first and verify both model files exist.</td>
+            </tr>
+            <tr>
+              <td>Byte count mismatch</td>
+              <td>Image не RGB888 або dimensions wrong.</td>
+              <td>Convert camera frames to RGB888 and pass correct width/height.</td>
+            </tr>
+            <tr>
+              <td>Slow response</td>
+              <td>Image too large або VLM large.</td>
+              <td>Reduce resolution або lower <code>maxTokens</code>.</td>
+            </tr>
+            <tr>
+              <td>Poor description</td>
+              <td>Prompt too vague або VLM not suited to task.</td>
+              <td>Use targeted prompt and compatible VLM/mmproj pair.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li><code>EdgeVeda.initVision()</code> — initializes the VLM and mmproj configuration.</li>
+        <li><code>EdgeVeda.disposeVision()</code> — releases vision resources.</li>
+        <li><code>VisionWorker.describeFrame()</code> — lower-level persistent-worker API with timing metadata.</li>
+        <li><code>CameraUtils.convertBgraToRgb()</code> / <code>convertYuv420ToRgb()</code> — converts camera data to RGB888.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaEmbedEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>embed()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Embeddings / RAG</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future&lt;EmbeddingResult&gt; embed(String text);`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>embed()</code> validates that the <code>EdgeVeda</code> instance is initialized, validates the input text, loads the configured GGUF model in a background isolate, calls the native embedding API, copies the L2-normalized embedding vector into Dart memory, and returns an <code>EmbeddingResult</code>. Use a real embedding model; using a generative model can produce meaningless embeddings.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>embed()</code> when you need to:</p>
+      <ul>
+        <li>convert a single query or document chunk into a vector;</li>
+        <li>search a local <code>VectorIndex</code> by semantic similarity;</li>
+        <li>build or query an on-device RAG pipeline;</li>
+        <li>compare two pieces of text by vector similarity.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>you need to embed many texts at once; use <code>embedBatch()</code>;</li>
+        <li>the current model is a chat/generation model rather than an embedding model;</li>
+        <li>you need natural-language generation; use <code>generate()</code> or <code>generateStream()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> has completed successfully;</li>
+        <li><code>config.modelPath</code> points to a GGUF embedding model;</li>
+        <li><code>text</code> is not empty;</li>
+        <li>the downstream vector index uses the same embedding dimensions as the model.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>text</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Text to embed.</td>
+              <td>Must not be empty; keep chunks within model context length.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Future&lt;EmbeddingResult&gt;</code> — a future that resolves to one embedding result.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>embedding</code></td>
+              <td><code>List&lt;double&gt;</code></td>
+              <td>L2-normalized vector copied into Dart memory.</td>
+            </tr>
+            <tr>
+              <td><code>tokenCount</code></td>
+              <td><code>int</code></td>
+              <td>Number of tokens in the input text.</td>
+            </tr>
+            <tr>
+              <td><code>dimensions</code></td>
+              <td><code>int</code></td>
+              <td>Convenience property returning vector dimension count.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>EmbeddingException</code></td>
+              <td><code>text</code> is empty or native embedding fails.</td>
+              <td>Validate input and confirm model compatibility.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>The configured model cannot be loaded for embedding.</td>
+              <td>Verify <code>modelPath</code>, model type, and memory budget.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime is not initialized or another SDK-level failure occurs.</td>
+              <td>Call <code>init()</code> first and handle typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Model or context exceeds memory limits.</td>
+              <td>Use a smaller embedding model or lower context/memory settings.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: embeddingModelPath,
+  contextLength: 512,
+  useGpu: true,
+));
+
+final result = await edgeVeda.embed('The quick brown fox');
+
+print('Dimensions: \${result.dimensions}');
+print('Tokens: \${result.tokenCount}');
+print('Vector head: \${result.embedding.take(5)}');`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<EmbeddingResult> embedQuery(EdgeVeda edgeVeda, String query) async {
+  final normalized = query.trim();
+  if (normalized.isEmpty) {
+    throw ArgumentError('query must not be empty');
+  }
+
+  try {
+    return await edgeVeda.embed(normalized);
+  } on EmbeddingException catch (error) {
+    throw Exception('Could not embed query: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Not applicable. <code>embed()</code> does not emit a stream.</p>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>embed()</code> requires the core runtime to be initialized with <code>init()</code>.</li>
+        <li>Native work runs in a background isolate to avoid blocking the UI.</li>
+        <li>The native model context is created for the call and freed after the embedding is copied.</li>
+        <li>The returned embedding is a Dart-owned <code>List&lt;double&gt;</code>.</li>
+        <li>Embedding dimensions depend on the selected model and must match the target <code>VectorIndex</code>.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Model type</td>
+              <td>Embedding models are usually smaller and faster than chat models.</td>
+              <td>Use a dedicated embedding model for RAG.</td>
+            </tr>
+            <tr>
+              <td>Chunk length</td>
+              <td>Longer text increases tokenization and compute time.</td>
+              <td>Split documents into consistent semantic chunks.</td>
+            </tr>
+            <tr>
+              <td>Single-call model load</td>
+              <td><code>embed()</code> loads for a single input.</td>
+              <td>Use <code>embedBatch()</code> for indexing many chunks.</td>
+            </tr>
+            <tr>
+              <td>Vector dimensions</td>
+              <td>Higher dimensions increase index size and search cost.</td>
+              <td>Do not mix different embedding models in one index.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>Yes</td>
+              <td>Primary supported use case.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Not recommended</td>
+              <td>Can produce meaningless embeddings.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No</td>
+              <td>Use vision APIs for image understanding.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Use image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target for on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior may be slower.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate file access and sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Test on target hardware before publishing performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency is not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: input text.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file and optional app-managed vector index.</li>
+        <li>Sensitive data considerations: embeddings can encode private content; protect persisted vectors and metadata.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Text cannot be empty</code></td>
+              <td>Empty string passed to <code>embed()</code>.</td>
+              <td>Trim and validate input.</td>
+            </tr>
+            <tr>
+              <td>Vector dimensions do not match index</td>
+              <td>Index was created for a different embedding model.</td>
+              <td>Rebuild the index with one consistent model.</td>
+            </tr>
+            <tr>
+              <td>Poor retrieval quality</td>
+              <td>Wrong model type or poor chunking.</td>
+              <td>Use a real embedding model and tune chunking.</td>
+            </tr>
+            <tr>
+              <td>Slow indexing</td>
+              <td>Calling <code>embed()</code> repeatedly loads the model for each text.</td>
+              <td>Use <code>embedBatch()</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li><code>EdgeVeda.embedBatch()</code> — embeds multiple texts with one model load/unload cycle.</li>
+        <li><code>VectorIndex.add()</code> — stores embedding vectors for local similarity search.</li>
+        <li><code>RagPipeline.query()</code> — runs retrieval-augmented generation using embeddings.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaEmbedUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>embed()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Embeddings / RAG</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future&lt;EmbeddingResult&gt; embed(String text);`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>embed()</code> перевіряє, що <code>EdgeVeda</code> instance ініціалізований, валідовує input text, завантажує configured GGUF model у background isolate, викликає native embedding API, копіює L2-normalized embedding vector у Dart memory і повертає <code>EmbeddingResult</code>. Використовуйте реальну embedding model; generative model може дати семантично некорисні vectors.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>embed()</code>, коли потрібно:</p>
+      <ul>
+        <li>перетворити один query або document chunk на vector;</li>
+        <li>шукати в локальному <code>VectorIndex</code> за semantic similarity;</li>
+        <li>будувати або запитувати on-device RAG pipeline;</li>
+        <li>порівнювати два тексти через vector similarity.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>потрібно embed-ити багато текстів за раз; використовуйте <code>embedBatch()</code>;</li>
+        <li>current model є chat/generation model, а не embedding model;</li>
+        <li>потрібна natural-language generation; використовуйте <code>generate()</code> або <code>generateStream()</code>.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> успішно завершився;</li>
+        <li><code>config.modelPath</code> вказує на GGUF embedding model;</li>
+        <li><code>text</code> не порожній;</li>
+        <li>downstream vector index використовує ті самі embedding dimensions.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>text</code></td>
+              <td><code>String</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Текст для embedding.</td>
+              <td>Не має бути empty; тримайте chunks у межах model context length.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Future&lt;EmbeddingResult&gt;</code> — future, що повертає один embedding result.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>embedding</code></td>
+              <td><code>List&lt;double&gt;</code></td>
+              <td>L2-normalized vector, скопійований у Dart memory.</td>
+            </tr>
+            <tr>
+              <td><code>tokenCount</code></td>
+              <td><code>int</code></td>
+              <td>Кількість tokens у input text.</td>
+            </tr>
+            <tr>
+              <td><code>dimensions</code></td>
+              <td><code>int</code></td>
+              <td>Convenience property з кількістю vector dimensions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>EmbeddingException</code></td>
+              <td><code>text</code> empty або native embedding fails.</td>
+              <td>Валідуйте input і підтвердьте model compatibility.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>Configured model не може бути loaded for embedding.</td>
+              <td>Перевірте <code>modelPath</code>, model type і memory budget.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime не initialized або SDK-level failure.</td>
+              <td>Спочатку викличте <code>init()</code> і обробіть typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Model/context перевищує memory limits.</td>
+              <td>Use smaller embedding model або lower context/memory settings.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: embeddingModelPath,
+  contextLength: 512,
+  useGpu: true,
+));
+
+final result = await edgeVeda.embed('The quick brown fox');
+
+print('Dimensions: \${result.dimensions}');
+print('Tokens: \${result.tokenCount}');
+print('Vector head: \${result.embedding.take(5)}');`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<EmbeddingResult> embedQuery(EdgeVeda edgeVeda, String query) async {
+  final normalized = query.trim();
+  if (normalized.isEmpty) {
+    throw ArgumentError('query must not be empty');
+  }
+
+  try {
+    return await edgeVeda.embed(normalized);
+  } on EmbeddingException catch (error) {
+    throw Exception('Could not embed query: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Не застосовується. <code>embed()</code> не повертає stream.</p>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>embed()</code> потребує core runtime, ініціалізований через <code>init()</code>.</li>
+        <li>Native work виконується в background isolate, щоб не блокувати UI.</li>
+        <li>Native model context створюється для call і звільняється після копіювання embedding.</li>
+        <li>Returned embedding — Dart-owned <code>List&lt;double&gt;</code>.</li>
+        <li>Embedding dimensions залежать від selected model і мають збігатися з target <code>VectorIndex</code>.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Model type</td>
+              <td>Embedding models зазвичай менші й швидші за chat models.</td>
+              <td>Для RAG використовуйте dedicated embedding model.</td>
+            </tr>
+            <tr>
+              <td>Chunk length</td>
+              <td>Longer text збільшує tokenization і compute time.</td>
+              <td>Розбивайте documents на consistent semantic chunks.</td>
+            </tr>
+            <tr>
+              <td>Single-call model load</td>
+              <td><code>embed()</code> load-ить model для одного input.</td>
+              <td>Для indexing багатьох chunks використовуйте <code>embedBatch()</code>.</td>
+            </tr>
+            <tr>
+              <td>Vector dimensions</td>
+              <td>Higher dimensions збільшують index size і search cost.</td>
+              <td>Не змішуйте різні embedding models в одному index.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>Yes</td>
+              <td>Основний supported use case.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Not recommended</td>
+              <td>Може давати meaningless embeddings.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No</td>
+              <td>Для image understanding використовуйте vision APIs.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Для цього є image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target для on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior може бути повільним.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте file access і sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Тестуйте на target hardware перед performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency не web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: input text.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file і optional app-managed vector index.</li>
+        <li>Sensitive data considerations: embeddings можуть кодувати private content; захищайте persisted vectors і metadata.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Text cannot be empty</code></td>
+              <td>Передано empty string.</td>
+              <td>Trim and validate input.</td>
+            </tr>
+            <tr>
+              <td>Vector dimensions do not match index</td>
+              <td>Index створено для іншої embedding model.</td>
+              <td>Rebuild index з однією consistent model.</td>
+            </tr>
+            <tr>
+              <td>Poor retrieval quality</td>
+              <td>Wrong model type або poor chunking.</td>
+              <td>Use real embedding model і tune chunking.</td>
+            </tr>
+            <tr>
+              <td>Slow indexing</td>
+              <td>Repeated <code>embed()</code> load-ить model для кожного text.</td>
+              <td>Використовуйте <code>embedBatch()</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li><code>EdgeVeda.embedBatch()</code> — embeds multiple texts with one model load/unload cycle.</li>
+        <li><code>VectorIndex.add()</code> — stores embedding vectors for local similarity search.</li>
+        <li><code>RagPipeline.query()</code> — runs retrieval-augmented generation using embeddings.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaEmbedBatchEn() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>embedBatch()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Embeddings / RAG</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; source review required before publishing</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Documented in <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface with validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<List<EmbeddingResult>> embedBatch(
+  List<String> texts, {
+  void Function(int completed, int total)? onProgress,
+});`}</code></pre>
+      <h2 id="what-it-does">What it does</h2>
+      <p><code>embedBatch()</code> validates that the <code>EdgeVeda</code> instance is initialized, then embeds all input texts in one background-isolate operation. The model is loaded once, reused for every text, and freed after the batch completes. Results are returned in the same order as the input list.</p>
+      <h2 id="when-to-use">When to use it</h2>
+      <p>Use <code>embedBatch()</code> when you need to:</p>
+      <ul>
+        <li>build a local vector index from document chunks;</li>
+        <li>embed notes, pages, records, or search candidates in bulk;</li>
+        <li>prepare a data set for on-device RAG;</li>
+        <li>improve throughput compared with repeated <code>embed()</code> calls.</li>
+      </ul>
+      <p>Do not use this method when:</p>
+      <ul>
+        <li>you only need one query vector; use <code>embed()</code>;</li>
+        <li>you need generated text; use <code>generate()</code> or <code>generateStream()</code>;</li>
+        <li>the configured model is not an embedding model;</li>
+        <li>you need guaranteed per-item progress UI before confirming current callback behavior.</li>
+      </ul>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Before calling this method, make sure that:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> has completed successfully;</li>
+        <li><code>config.modelPath</code> points to a GGUF embedding model;</li>
+        <li>input strings are pre-trimmed and chunked to fit the model context length;</li>
+        <li>the app has enough memory for the model and result list.</li>
+      </ul>
+      <h2 id="parameters">Parameters</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>texts</code></td>
+              <td><code>List&lt;String&gt;</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Text items to embed.</td>
+              <td>Empty list returns <code>[]</code>. Review empty-string behavior before publishing.</td>
+            </tr>
+            <tr>
+              <td><code>onProgress</code></td>
+              <td><code>void Function(int completed, int total)?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional progress callback declared by the API.</td>
+              <td>Public docs describe per-text progress; confirm actual invocation during source review.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Returns</h2>
+      <p><code>Future&lt;List<EmbeddingResult>&gt;</code> — a future that resolves to embedding results in input order.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>embedding</code></td>
+              <td><code>List&lt;double&gt;</code></td>
+              <td>L2-normalized vector copied into Dart memory.</td>
+            </tr>
+            <tr>
+              <td><code>tokenCount</code></td>
+              <td><code>int</code></td>
+              <td>Number of tokens in the corresponding input text.</td>
+            </tr>
+            <tr>
+              <td><code>dimensions</code></td>
+              <td><code>int</code></td>
+              <td>Convenience property returning vector dimensions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Errors and exceptions</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>EmbeddingException</code></td>
+              <td>Native embedding fails for one text.</td>
+              <td>Validate inputs, split long chunks, and retry the failed batch or item.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>The configured model cannot be loaded.</td>
+              <td>Verify <code>modelPath</code>, model type, and memory budget.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime is not initialized or SDK-level failure occurs.</td>
+              <td>Call <code>init()</code> first and handle typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Batch/model exceeds memory limits.</td>
+              <td>Reduce batch size or use a smaller embedding model.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: embeddingModelPath,
+  contextLength: 512,
+  useGpu: true,
+));
+
+final results = await edgeVeda.embedBatch([
+  'Flutter is a UI framework.',
+  'Dart is a programming language.',
+  'Edge Veda runs AI models on device.',
+]);
+
+print('Embedded \${results.length} texts');`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<List<EmbeddingResult>> embedChunks(
+  EdgeVeda edgeVeda,
+  List<String> chunks,
+) async {
+  final cleanChunks = chunks.map((c) => c.trim()).where((c) => c.isNotEmpty).toList();
+  if (cleanChunks.isEmpty) return [];
+
+  try {
+    return await edgeVeda.embedBatch(
+      cleanChunks,
+      onProgress: (completed, total) {
+        print('Embedding progress: $completed / $total');
+      },
+    );
+  } on EmbeddingException catch (error) {
+    throw Exception('Batch embedding failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Not applicable. <code>embedBatch()</code> does not emit a stream.</p>
+      <h2 id="behavior">Behavior notes</h2>
+      <ul>
+        <li><code>embedBatch()</code> requires the core runtime initialized with <code>init()</code>.</li>
+        <li>Empty input list returns an empty result list.</li>
+        <li>The whole batch runs in one background isolate.</li>
+        <li>The native model context is created once and reused for all texts.</li>
+        <li>Results preserve input order.</li>
+        <li>Review note: confirm <code>onProgress</code> callback behavior against current source before documenting UI guarantees.</li>
+      </ul>
+      <h2 id="performance">Performance notes</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Batch size</td>
+              <td>Larger batches reduce load overhead but increase result memory.</td>
+              <td>Use moderate batches when indexing large corpora.</td>
+            </tr>
+            <tr>
+              <td>Chunk length</td>
+              <td>Longer chunks increase embedding latency.</td>
+              <td>Use consistent chunking with overlap where needed.</td>
+            </tr>
+            <tr>
+              <td>Model load reuse</td>
+              <td>One load per batch is faster than one load per text.</td>
+              <td>Prefer <code>embedBatch()</code> for indexing workflows.</td>
+            </tr>
+            <tr>
+              <td>Vector persistence</td>
+              <td>Persisting many vectors increases storage use.</td>
+              <td>Store metadata compactly and protect private content.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Model & platform compatibility</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>Yes</td>
+              <td>Primary supported use case.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Not recommended</td>
+              <td>Can produce meaningless embeddings.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No</td>
+              <td>Use vision APIs for image understanding.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Use image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Platform compatibility</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target for on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior may be slower.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Validate file access and sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Test on target hardware before publishing performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency is not web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Privacy and security</h2>
+      <ul>
+        <li>Input data processed: list of text strings.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file and any app-managed vector index.</li>
+        <li>Sensitive data considerations: stored vectors and metadata may reveal semantic information from private documents.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Returns <code>[]</code></td>
+              <td>Input list is empty.</td>
+              <td>Check upstream chunking and filtering logic.</td>
+            </tr>
+            <tr>
+              <td>Batch fails partway</td>
+              <td>One input may be malformed, too long, or unsupported.</td>
+              <td>Validate and chunk inputs before embedding.</td>
+            </tr>
+            <tr>
+              <td>High memory use</td>
+              <td>Batch is too large or vectors are high-dimensional.</td>
+              <td>Reduce batch size or choose a smaller embedding model.</td>
+            </tr>
+            <tr>
+              <td>Progress UI does not update</td>
+              <td>Callback behavior needs source verification.</td>
+              <td>Do not depend on progress UI until implementation is confirmed.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Related APIs</h2>
+      <ul>
+        <li><code>EdgeVeda.embed()</code> — embeds one text string.</li>
+        <li><code>VectorIndex.add()</code> — stores vectors for local search.</li>
+        <li><code>RagPipeline.query()</code> — uses embeddings for retrieval-augmented generation.</li>
+      </ul>
+    </>
+  );
+}
+
+function EdgevedaEmbedBatchUa() {
+  return (
+    <>
+      <h2 id="api-summary">API summary</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Поле</th>
+            <th>Значення</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>API surface</td>
+              <td>Public Dart SDK</td>
+            </tr>
+            <tr>
+              <td>Class / extension</td>
+              <td><code>EdgeVeda</code></td>
+            </tr>
+            <tr>
+              <td>Method</td>
+              <td><code>embedBatch()</code></td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>Embeddings / RAG</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Stable API surface; перед публікацією потрібен source review</td>
+            </tr>
+            <tr>
+              <td>Since</td>
+              <td>Задокументовано в <code>edge_veda</code> 2.5.0 API reference</td>
+            </tr>
+            <tr>
+              <td>Platforms</td>
+              <td>iOS/macOS package surface; Android package surface з validation caveats</td>
+            </tr>
+            <tr>
+              <td>Requires initialized runtime</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Supports streaming</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Runs on device</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="signature">Signature</h2>
+      <pre className="code-block"><code>{`Future<List<EmbeddingResult>> embedBatch(
+  List<String> texts, {
+  void Function(int completed, int total)? onProgress,
+});`}</code></pre>
+      <h2 id="what-it-does">Що робить</h2>
+      <p><code>embedBatch()</code> перевіряє, що <code>EdgeVeda</code> instance ініціалізований, і embed-ить усі input texts в одній background-isolate operation. Model load-иться один раз, reuse-иться для кожного text і звільняється після завершення batch. Results повертаються в тому самому порядку, що й input list.</p>
+      <h2 id="when-to-use">Коли використовувати</h2>
+      <p>Використовуйте <code>embedBatch()</code>, коли потрібно:</p>
+      <ul>
+        <li>побудувати local vector index з document chunks;</li>
+        <li>embed-ити notes, pages, records або search candidates bulk-ом;</li>
+        <li>підготувати data set для on-device RAG;</li>
+        <li>покращити throughput порівняно з repeated <code>embed()</code> calls.</li>
+      </ul>
+      <p>Не використовуйте цей метод, коли:</p>
+      <ul>
+        <li>потрібен лише один query vector; використовуйте <code>embed()</code>;</li>
+        <li>потрібен generated text; використовуйте <code>generate()</code> або <code>generateStream()</code>;</li>
+        <li>configured model не є embedding model;</li>
+        <li>потрібна гарантована per-item progress UI до підтвердження callback behavior.</li>
+      </ul>
+      <h2 id="prerequisites">Передумови</h2>
+      <p>Перед викликом методу переконайтесь, що:</p>
+      <ul>
+        <li><code>await edgeVeda.init(config)</code> успішно завершився;</li>
+        <li><code>config.modelPath</code> вказує на GGUF embedding model;</li>
+        <li>input strings pre-trimmed і chunked до model context length;</li>
+        <li>app має достатньо memory для model і result list.</li>
+      </ul>
+      <h2 id="parameters">Параметри</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+            <th>Constraints / notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>texts</code></td>
+              <td><code>List&lt;String&gt;</code></td>
+              <td>Yes</td>
+              <td>—</td>
+              <td>Text items для embedding.</td>
+              <td>Empty list повертає <code>[]</code>. Перед публікацією review empty-string behavior.</td>
+            </tr>
+            <tr>
+              <td><code>onProgress</code></td>
+              <td><code>void Function(int completed, int total)?</code></td>
+              <td>No</td>
+              <td><code>null</code></td>
+              <td>Optional progress callback у public API.</td>
+              <td>Public docs описують per-text progress; підтвердьте actual invocation during source review.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="returns">Повертає</h2>
+      <p><code>Future&lt;List<EmbeddingResult>&gt;</code> — future, що повертає embedding results у input order.</p>
+      <h3>Return object fields</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>embedding</code></td>
+              <td><code>List&lt;double&gt;</code></td>
+              <td>L2-normalized vector copied into Dart memory.</td>
+            </tr>
+            <tr>
+              <td><code>tokenCount</code></td>
+              <td><code>int</code></td>
+              <td>Number of tokens in the corresponding input text.</td>
+            </tr>
+            <tr>
+              <td><code>dimensions</code></td>
+              <td><code>int</code></td>
+              <td>Convenience property returning vector dimensions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="errors">Помилки та винятки</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Error / exception</th>
+            <th>When it happens</th>
+            <th>How to handle it</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><code>EmbeddingException</code></td>
+              <td>Native embedding fails для одного text.</td>
+              <td>Validate inputs, split long chunks і retry failed batch/item.</td>
+            </tr>
+            <tr>
+              <td><code>ModelLoadException</code></td>
+              <td>Configured model не може бути loaded.</td>
+              <td>Перевірте <code>modelPath</code>, model type і memory budget.</td>
+            </tr>
+            <tr>
+              <td><code>InitializationException</code> / <code>EdgeVedaException</code></td>
+              <td>Runtime не initialized або SDK-level failure.</td>
+              <td>Спочатку викличте <code>init()</code> і обробіть typed exceptions.</td>
+            </tr>
+            <tr>
+              <td><code>MemoryException</code></td>
+              <td>Batch/model перевищує memory limits.</td>
+              <td>Reduce batch size або use smaller embedding model.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="examples">Приклади</h2>
+      <pre className="code-block"><code>{`final edgeVeda = EdgeVeda();
+
+await edgeVeda.init(EdgeVedaConfig(
+  modelPath: embeddingModelPath,
+  contextLength: 512,
+  useGpu: true,
+));
+
+final results = await edgeVeda.embedBatch([
+  'Flutter is a UI framework.',
+  'Dart is a programming language.',
+  'Edge Veda runs AI models on device.',
+]);
+
+print('Embedded \${results.length} texts');`}</code></pre>
+      <h3>Production-style example</h3>
+      <pre className="code-block"><code>{`Future<List<EmbeddingResult>> embedChunks(
+  EdgeVeda edgeVeda,
+  List<String> chunks,
+) async {
+  final cleanChunks = chunks.map((c) => c.trim()).where((c) => c.isNotEmpty).toList();
+  if (cleanChunks.isEmpty) return [];
+
+  try {
+    return await edgeVeda.embedBatch(
+      cleanChunks,
+      onProgress: (completed, total) {
+        print('Embedding progress: $completed / $total');
+      },
+    );
+  } on EmbeddingException catch (error) {
+    throw Exception('Batch embedding failed: \${error.message}');
+  } on EdgeVedaException catch (error) {
+    throw Exception('Edge Veda runtime error: \${error.message}');
+  }
+}`}</code></pre>
+      <h3>Streaming example</h3>
+      <p>Не застосовується. <code>embedBatch()</code> не повертає stream.</p>
+      <h2 id="behavior">Поведінка</h2>
+      <ul>
+        <li><code>embedBatch()</code> потребує core runtime, ініціалізований через <code>init()</code>.</li>
+        <li>Empty input list повертає empty result list.</li>
+        <li>Увесь batch виконується в одному background isolate.</li>
+        <li>Native model context створюється один раз і reuse-иться для всіх texts.</li>
+        <li>Results preserve input order.</li>
+        <li>Review note: confirm <code>onProgress</code> callback behavior against current source before UI guarantees.</li>
+      </ul>
+      <h2 id="performance">Продуктивність</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Factor</th>
+            <th>Impact</th>
+            <th>Recommendation</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Batch size</td>
+              <td>Larger batches зменшують load overhead, але збільшують result memory.</td>
+              <td>Для великих corpora використовуйте moderate batches.</td>
+            </tr>
+            <tr>
+              <td>Chunk length</td>
+              <td>Longer chunks збільшують embedding latency.</td>
+              <td>Use consistent chunking з overlap where needed.</td>
+            </tr>
+            <tr>
+              <td>Model load reuse</td>
+              <td>One load per batch швидше, ніж one load per text.</td>
+              <td>Для indexing workflows використовуйте <code>embedBatch()</code>.</td>
+            </tr>
+            <tr>
+              <td>Vector persistence</td>
+              <td>Persisting many vectors збільшує storage use.</td>
+              <td>Store metadata compactly і protect private content.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="compatibility">Сумісність моделей і платформ</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Model family / format</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>GGUF embedding model</td>
+              <td>Yes</td>
+              <td>Primary supported use case.</td>
+            </tr>
+            <tr>
+              <td>GGUF chat/instruct LLM</td>
+              <td>Not recommended</td>
+              <td>Can produce meaningless embeddings.</td>
+            </tr>
+            <tr>
+              <td>Vision-language model</td>
+              <td>No</td>
+              <td>Use vision APIs for image understanding.</td>
+            </tr>
+            <tr>
+              <td>Stable Diffusion model</td>
+              <td>No</td>
+              <td>Use image generation APIs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Платформи</h3>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Platform</th>
+            <th>Supported</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>iOS device</td>
+              <td>Yes</td>
+              <td>Primary validated target для on-device inference.</td>
+            </tr>
+            <tr>
+              <td>iOS simulator</td>
+              <td>Partial</td>
+              <td>CPU-only behavior може бути повільним.</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>Yes / package surface</td>
+              <td>Перевірте file access і sandbox behavior.</td>
+            </tr>
+            <tr>
+              <td>Android</td>
+              <td>Partial / validation pending</td>
+              <td>Тестуйте на target hardware перед performance claims.</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td>No</td>
+              <td>Native runtime dependency не web-oriented.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="privacy">Приватність та безпека</h2>
+      <ul>
+        <li>Input data processed: list of text strings.</li>
+        <li>Network access during inference: none.</li>
+        <li>Local storage used: local model file і app-managed vector index.</li>
+        <li>Sensitive data considerations: stored vectors і metadata можуть розкривати semantic information з private documents.</li>
+      </ul>
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div className="api-summary-table">
+        <table>
+          <thead><tr>
+            <th>Symptom</th>
+            <th>Possible cause</th>
+            <th>Fix</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Returns <code>[]</code></td>
+              <td>Input list is empty.</td>
+              <td>Перевірте upstream chunking/filtering logic.</td>
+            </tr>
+            <tr>
+              <td>Batch fails partway</td>
+              <td>Один input може бути malformed, too long або unsupported.</td>
+              <td>Validate and chunk inputs before embedding.</td>
+            </tr>
+            <tr>
+              <td>High memory use</td>
+              <td>Batch too large або vectors high-dimensional.</td>
+              <td>Reduce batch size або choose smaller embedding model.</td>
+            </tr>
+            <tr>
+              <td>Progress UI does not update</td>
+              <td>Callback behavior needs source verification.</td>
+              <td>Не залежте від progress UI, доки implementation не підтверджено.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="related">Пов'язані API</h2>
+      <ul>
+        <li><code>EdgeVeda.embed()</code> — embeds one text string.</li>
+        <li><code>VectorIndex.add()</code> — stores vectors for local search.</li>
+        <li><code>RagPipeline.query()</code> — uses embeddings for retrieval-augmented generation.</li>
+      </ul>
+    </>
+  );
+}
+/* ---------- API Doc Content Map ---------- */
+const API_DOC_CONTENT = {
+  "edgeveda-init": {
+    en: <EdgevedaInitEn />,
+    ua: <EdgevedaInitUa />,
+  },
+  "edgeveda-generate": {
+    en: <EdgevedaGenerateEn />,
+    ua: <EdgevedaGenerateUa />,
+  },
+  "edgeveda-generate-stream": {
+    en: <EdgevedaGenerateStreamEn />,
+    ua: <EdgevedaGenerateStreamUa />,
+  },
+  "edgeveda-describe-image": {
+    en: <EdgevedaDescribeImageEn />,
+    ua: <EdgevedaDescribeImageUa />,
+  },
+  "edgeveda-embed": {
+    en: <EdgevedaEmbedEn />,
+    ua: <EdgevedaEmbedUa />,
+  },
+  "edgeveda-embed-batch": {
+    en: <EdgevedaEmbedBatchEn />,
+    ua: <EdgevedaEmbedBatchUa />,
+  },
+};
+
 
 /* ---------- Workflow page ---------- */
 function WorkflowPage({ lang }) {

@@ -341,5 +341,99 @@ const SAMPLES = [
   },
 ];
 
+const API_DOCS = [
+  {
+    id: "edgeveda-init",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.init()", ua: "EdgeVeda.init()" },
+    description: {
+      en: "Initializes the Edge Veda runtime configuration and verifies that the selected on-device model can be loaded.",
+      ua: "Ініціалізує конфігурацію Edge Veda runtime і перевіряє, що вибрану on-device модель можна завантажити.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Runtime"],
+    method: "init()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Core inference",
+  },
+  {
+    id: "edgeveda-generate",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.generate()", ua: "EdgeVeda.generate()" },
+    description: {
+      en: "Generates a complete text response from a prompt by collecting tokens from the persistent streaming worker.",
+      ua: "Генерує повну текстову відповідь із prompt, збираючи токени з persistent streaming worker.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Text Generation"],
+    method: "generate()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Core inference",
+  },
+  {
+    id: "edgeveda-generate-stream",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.generateStream()", ua: "EdgeVeda.generateStream()" },
+    description: {
+      en: "Generates text as a stream of token chunks for progressive, responsive on-device AI experiences.",
+      ua: "Генерує текст як stream token chunks для responsive on-device AI experiences.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Streaming"],
+    method: "generateStream()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Core inference",
+  },
+  {
+    id: "edgeveda-describe-image",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.describeImage()", ua: "EdgeVeda.describeImage()" },
+    description: {
+      en: "Generates a text description of an RGB image using the initialized vision-language model.",
+      ua: "Генерує text description для RGB image за допомогою ініціалізованої vision-language model.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Vision"],
+    method: "describeImage()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Vision",
+  },
+  {
+    id: "edgeveda-embed",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.embed()", ua: "EdgeVeda.embed()" },
+    description: {
+      en: "Computes a text embedding vector for one input string using the initialized local embedding model.",
+      ua: "Обчислює text embedding vector для одного input string за допомогою ініціалізованої локальної embedding model.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Embeddings"],
+    method: "embed()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Embeddings / RAG",
+  },
+  {
+    id: "edgeveda-embed-batch",
+    parentSample: "rest-api-docs",
+    title: { en: "EdgeVeda.embedBatch()", ua: "EdgeVeda.embedBatch()" },
+    description: {
+      en: "Computes embedding vectors for multiple text strings in one model load/unload cycle.",
+      ua: "Обчислює embedding vectors для кількох text strings за один model load/unload cycle.",
+    },
+    tags: ["Dart SDK", "On-device AI", "Embeddings"],
+    method: "embedBatch()",
+    className: "EdgeVeda",
+    stability: "Stable",
+    since: "2.5.0",
+    category: "Embeddings / RAG",
+  },
+];
+
 window.I18N = I18N;
 window.SAMPLES = SAMPLES;
+window.API_DOCS = API_DOCS;
