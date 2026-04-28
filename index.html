@@ -1,0 +1,35 @@
+---
+layout: null
+---
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="cyan">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Folio · M. Troynin — AI Technical Writer</title>
+<meta name="description" content="AI-assisted technical writer for developer documentation, API docs, codebase docs and AI documentation workflows."/>
+
+<meta property="og:title" content="M. Troynin — AI Technical Writer"/>
+<meta property="og:description" content="I turn source code into documentation engineers actually read."/>
+<meta property="og:type" content="website"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700;720;760&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="{{ site.baseurl }}/assets/css/styles.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>"/>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="{{ site.baseurl }}/assets/js/tweaks-panel.jsx"></script>
+<script type="text/babel" src="{{ site.baseurl }}/assets/js/data.jsx"></script>
+<script type="text/babel" src="{{ site.baseurl }}/assets/js/components.jsx"></script>
+<script type="text/babel" src="{{ site.baseurl }}/assets/js/app.jsx"></script>
+</body>
+</html>
