@@ -266,9 +266,3 @@ Tool має повідомляти про:
 | `writes_disabled` | Tool потребує writes, але `allowWrites` вимкнено. | Вмикайте writes лише для trusted sessions. |
 | `path_not_allowed` | Tool намагається писати поза allowed paths. | Оновіть `allowedWritePaths` або виберіть safe output path. |
 | `command_failed` | Flutter, Dart або platform command завершилась з помилкою. | Прочитайте command output і запустіть `edge_veda.doctor`. |
-
-## Пов'язані документи
-
-- [Overview](./overview.md)
-- [Installation](./installation.md)
-- [Create project](./create-project.md)

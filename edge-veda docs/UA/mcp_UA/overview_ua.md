@@ -163,9 +163,3 @@ MCP server має:
 | Project creation не працює | Перевірте write permissions і переконайтесь, що target folder не містить конфліктних files. |
 | Model validation не проходить | Перевірте `modelsRoot`, `modelPath`, file extension і platform support. |
 | Generated docs неповні | Запустіть tool ще раз із точнішими `projectName`, `capabilities` і `targetPlatforms`. |
-
-## Пов'язані документи
-
-- [Installation](./installation.md)
-- [Available tools](./available-tools.md)
-- [Create project](./create-project.md)

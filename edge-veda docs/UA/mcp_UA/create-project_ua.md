@@ -273,9 +273,3 @@ Generated project готовий до manual development, коли:
 - generated code переглянуто;
 - `.gitignore` виключає local model files і build artifacts;
 - project build-иться хоча б на одній target platform.
-
-## Пов'язані документи
-
-- [Overview](./overview.md)
-- [Installation](./installation.md)
-- [Available tools](./available-tools.md)
