@@ -12,12 +12,12 @@ last_reviewed: "2026-05-01"
 
 RAG складається з кількох шарів:
 
-1. Document loading.
-2. Chunking.
-3. Embedding generation.
-4. Vector index storage.
-5. Retrieval.
-6. Context injection.
+1. Завантаження документа.
+2. Розбиття на чанки.
+3. Генерація ембедингів.
+4. Збереження векторного індексу.
+5. Пошук (retrieval).
+6. Вставка контексту.
 7. LLM answer generation.
 
 Помилка на будь-якому шарі може виглядати як погана фінальна відповідь.

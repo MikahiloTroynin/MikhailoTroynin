@@ -269,7 +269,7 @@ Do not perform destructive actions without explicit confirmation.
 - retry action, коли tool fails;
 - developer debug view за feature flag.
 
-User-visible event:
+Подія, яку бачить користувач:
 
 ```text
 Tool used: create_note

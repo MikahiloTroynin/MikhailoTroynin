@@ -21,7 +21,7 @@ last_reviewed: "2026-04-30"
 
 ## Що створюється
 
-App flow:
+Потік застосунку:
 
 1. запит microphone permission;
 2. recording audio;
@@ -196,7 +196,7 @@ Future<List<JournalEntry>> searchJournal({
 }
 ```
 
-Search examples:
+Приклади пошуку:
 
 ```text
 times I felt motivated

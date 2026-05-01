@@ -46,7 +46,7 @@ Model output constrained до JSON, що відповідає provided schema.
 
 Використовуйте `structured output`, коли app має programmatically consume model response.
 
-Common examples:
+Поширені приклади:
 
 - extraction fields з message;
 - classification ticket;

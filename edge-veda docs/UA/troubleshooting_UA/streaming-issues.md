@@ -153,7 +153,7 @@ await for (final chunk in edgeVeda.generateStream(prompt)) {
 - Пристрій потрапив у memory або thermal pressure.
 - Prompt або grammar призвели до invalid stop condition.
 
-Recovery pattern:
+Схема відновлення:
 
 1. Збережіть partial buffer.
 2. Покажіть користувачу resumable state.
