@@ -105,7 +105,7 @@ KV cache memory зростає разом із context length. Для mobile dev
 | `1` | `F16` KV cache |
 | `8` | `Q8_0` KV cache |
 
-Default:
+Типово:
 
 ```dart
 kvCacheTypeK: 8,

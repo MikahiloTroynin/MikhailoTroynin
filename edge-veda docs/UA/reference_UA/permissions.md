@@ -47,7 +47,7 @@ Edge Veda inference є local by default. Більшість permissions не п�
 <string>This app uses the microphone to transcribe your voice on device.</string>
 ```
 
-Recommended wording:
+Рекомендоване формулювання:
 
 ```text
 This app uses the microphone to transcribe your voice on device. Audio is processed locally by Edge Veda.

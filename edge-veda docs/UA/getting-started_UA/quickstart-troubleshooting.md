@@ -14,11 +14,11 @@ last_reviewed: "2026-04-29"
 
 Найшвидший спосіб дебажити Edge Veda quickstart issues — спочатку визначити етап, на якому виникла проблема:
 
-1. Flutter and package installation
-2. CocoaPods and native framework setup
-3. iOS signing and device deployment
-4. Model download or import
-5. Runtime initialization
+1. Встановлення Flutter і пакета
+2. Налаштування CocoaPods і native-фреймворку
+3. Підпис iOS і розгортання на пристрої
+4. Завантаження або імпорт моделі
+5. Ініціалізація runtime
 6. Text generation or streaming chat
 7. Performance, memory, or thermal behavior
 
@@ -199,7 +199,7 @@ await edgeVeda.init(EdgeVedaConfig(
 
 Якщо ваша версія SDK має `isModelDownloaded()` або `getModelPath()`, використовуйте ці helpers перед initialization.
 
-## 7. Runtime initialization fails
+## 7. Ініціалізація runtime fails
 
 ### Симптом
 

@@ -41,7 +41,7 @@ Quantization зменшує model size і memory use завдяки зберіг
 - throughput важливіший за максимальну quality;
 - use case — chat, command parsing, summarization або RAG answer generation.
 
-Preconfigured examples:
+Попередньо налаштовані приклади:
 
 - `ModelRegistry.llama32_1b`;
 - `ModelRegistry.qwen3_06b`;
@@ -54,7 +54,7 @@ Preconfigured examples:
 
 `Q8_0` зберігає більше precision, ніж 4-bit formats, і використовується, коли model вже невелика або output quality чутлива до precision.
 
-Preconfigured examples:
+Попередньо налаштовані приклади:
 
 - `ModelRegistry.smolvlm2_500m`;
 - `ModelRegistry.smolvlm2_256m`;
@@ -71,7 +71,7 @@ Preconfigured examples:
 
 `F16` використовується для higher-precision components, особливо multimodal projectors.
 
-Preconfigured examples:
+Попередньо налаштовані приклади:
 
 - `ModelRegistry.smolvlm2_500m_mmproj`;
 - `ModelRegistry.llava16_mistral_7b_mmproj`;
@@ -102,7 +102,7 @@ final config = EdgeVedaConfig(
 | `kvCacheTypeK` | `8` | Quantization type для key cache. |
 | `kvCacheTypeV` | `8` | Quantization type для value cache. |
 
-Known values:
+Відомі значення:
 
 | Value | Level | Опис |
 | --- | --- | --- |

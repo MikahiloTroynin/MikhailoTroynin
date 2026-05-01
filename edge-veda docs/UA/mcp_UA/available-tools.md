@@ -116,7 +116,7 @@ Edge Veda MCP tools використовують prefix `edge_veda.`.
 | --- | --- | --- | --- |
 | `workspaceRoot` | `string` | Yes | Project root. |
 | `configFile` | `string` | No | Specific config file для читання. |
-| `redactSecrets` | `boolean` | No | Приховує secret-looking values. Default: `true`. |
+| `redactSecrets` | `boolean` | No | Приховує secret-looking values. Типово: `true`. |
 
 ## `edge_veda.validate_models`
 
@@ -166,7 +166,7 @@ Tool має повідомляти про:
 | Input | Type | Required | Description |
 | --- | --- | --- | --- |
 | `workspaceRoot` | `string` | Yes | Project root. |
-| `docsRoot` | `string` | No | Documentation root. Default: `docs`. |
+| `docsRoot` | `string` | No | Documentation root. Типово: `docs`. |
 | `language` | `string` | No | `en`, `uk` або `both`. |
 | `section` | `string` | No | Section name. Example: `getting-started`, `guides`, `troubleshooting`. |
 | `capability` | `string` | No | Capability-specific docs для генерації. |
@@ -241,7 +241,7 @@ Tool має повідомляти про:
 | Input | Type | Required | Description |
 | --- | --- | --- | --- |
 | `workspaceRoot` | `string` | Yes | Project root. |
-| `redactSecrets` | `boolean` | No | Приховує sensitive values. Default: `true`. |
+| `redactSecrets` | `boolean` | No | Приховує sensitive values. Типово: `true`. |
 | `includeLogs` | `boolean` | No | Додає MCP logs, якщо доступні. |
 | `includeFileTree` | `boolean` | No | Додає safe file tree summary. |
 

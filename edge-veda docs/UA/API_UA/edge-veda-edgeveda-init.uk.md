@@ -21,7 +21,7 @@ reviewer: "AI draft — requires maintainer/SME review"
 | API surface | Public Dart SDK |
 | Class / extension | `EdgeVeda` |
 | Method | `init()` |
-| Category | Core inference / Runtime initialization |
+| Category | Core inference / Ініціалізація runtime |
 | Stability | Stable API surface; перед публікацією потрібен source review |
 | Since | Задокументовано в `edge_veda` 2.5.0 API reference |
 | Platforms | iOS/macOS package surface; Android package surface з validation caveats |
