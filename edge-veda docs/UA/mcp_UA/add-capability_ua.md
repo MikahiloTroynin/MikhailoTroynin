@@ -333,10 +333,3 @@ flutter run -d <device-id>
 | `path_not_allowed` | Tool спробував писати поза `allowedWritePaths`. | Додайте safe path або змініть generated output location. |
 | App build-иться, але inference падає | Model path, format або runtime config неправильні. | Запустіть `edge_veda.validate_models`. |
 | Permission prompt не з'являється | Platform permission file не оновлено. | Перевірте `Info.plist`, Android manifest або platform-specific settings. |
-
-## Пов'язані документи
-
-- [MCP overview](./overview.md)
-- [Available tools](./available-tools.md)
-- [Download model](./download-model.md)
-- [MCP troubleshooting](./troubleshooting.md)
