@@ -51,12 +51,6 @@ function getEmbeddedUaDoc(slug) {
   return map[slug] || "";
 }
 
-function buildUaFetchCandidates(path) {
-  const clean = path.replace(/^\.\//, "");
-  const repoBase = window.location.pathname.replace(/[^/]*$/, "");
-  return [clean, `./${clean}`, `${repoBase}${clean}`];
-}
-
 function EdgeVedaDocPage({ lang, slug }) {
   const cats = window.EDGE_VEDA_DOCS.categories;
   let doc = null;
@@ -86,23 +80,13 @@ function EdgeVedaDocPage({ lang, slug }) {
       return;
     }
 
-    const candidates = buildUaFetchCandidates(uaPath);
-
-    (async () => {
-      let lastError = null;
-      for (const candidate of candidates) {
-        try {
-          const r = await fetch(encodeURI(candidate));
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          const txt = await r.text();
-          setMd(txt);
-          return;
-        } catch (e) {
-          lastError = e;
-        }
-      }
-      setLoadError(String(lastError?.message || lastError || "HTTP 404"));
-    })();
+    fetch(encodeURI(uaPath))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then((txt) => setMd(txt))
+      .catch((e) => setLoadError(String(e?.message || e)));
   }, [slug]);
 
   if (!doc) {
