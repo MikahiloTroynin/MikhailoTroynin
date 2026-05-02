@@ -40,6 +40,17 @@ function buildUaDocPath(categoryId, slug) {
   return `${base}/${catFolder}/${fileStem}_ua.md`;
 }
 
+function getEmbeddedUaDoc(slug) {
+  const map = window.EDGE_VEDA_DOCS_UA_CONTENT || window.EDGE_VEDA_UA_DOCS_CONTENT || {};
+  return map[slug] || "";
+}
+
+function buildUaFetchCandidates(path) {
+  const clean = path.replace(/^\.\//, "");
+  const repoBase = window.location.pathname.replace(/[^/]*$/, "");
+  return [clean, `./${clean}`, `${repoBase}${clean}`];
+}
+
 function EdgeVedaDocPage({ lang, slug }) {
   const cats = window.EDGE_VEDA_DOCS.categories;
   let doc = null;
@@ -57,19 +68,35 @@ function EdgeVedaDocPage({ lang, slug }) {
     setLoadError("");
     if (!doc || !category) return;
 
+    const embedded = getEmbeddedUaDoc(doc.slug);
+    if (embedded) {
+      setMd(embedded);
+      return;
+    }
+
     const uaPath = buildUaDocPath(category.id, doc.slug);
     if (!uaPath) {
       setLoadError("Unable to resolve document path.");
       return;
     }
 
-    fetch(encodeURI(uaPath))
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.text();
-      })
-      .then((txt) => setMd(txt))
-      .catch((e) => setLoadError(String(e?.message || e)));
+    const candidates = buildUaFetchCandidates(uaPath);
+
+    (async () => {
+      let lastError = null;
+      for (const candidate of candidates) {
+        try {
+          const r = await fetch(encodeURI(candidate));
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const txt = await r.text();
+          setMd(txt);
+          return;
+        } catch (e) {
+          lastError = e;
+        }
+      }
+      setLoadError(String(lastError?.message || lastError || "HTTP 404"));
+    })();
   }, [slug]);
 
   if (!doc) {
