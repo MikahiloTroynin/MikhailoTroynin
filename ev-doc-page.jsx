@@ -11,6 +11,11 @@ function useMarkdownHtml(md) {
   }, [md]);
 }
 
+function stripFrontMatter(md) {
+  if (!md) return "";
+  return md.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
+}
+
 function buildUaDocPath(categoryId, slug) {
   const base = "edge-veda docs/UA";
   const catFolder = {
@@ -90,7 +95,8 @@ function EdgeVedaDocPage({ lang, slug }) {
   const en = lang === "en";
   const title = doc.title[lang];
   const catTitle = category.title[lang];
-  const html = useMarkdownHtml(md);
+  const cleanMd = React.useMemo(() => stripFrontMatter(md), [md]);
+  const html = useMarkdownHtml(cleanMd);
   const idx = category.docs.findIndex((d) => d.slug === slug);
   const prev = idx > 0 ? category.docs[idx - 1] : null;
   const next = idx < category.docs.length - 1 ? category.docs[idx + 1] : null;
@@ -104,7 +110,7 @@ function EdgeVedaDocPage({ lang, slug }) {
       <section className="container" style={{ paddingBottom: 80 }}>
         <div className="detail-layout">
           <article className="prose">
-            {md && <div dangerouslySetInnerHTML={{ __html: html }} />}
+            {cleanMd && <div dangerouslySetInnerHTML={{ __html: html }} />}
             {!md && !loadError && <p>{en ? "Loading documentation..." : "Завантаження документації..."}</p>}
             {loadError && <p style={{ color: "#b00020" }}>{en ? "Failed to load markdown:" : "Не вдалося завантажити markdown:"} {loadError}</p>}
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 16 }}>
