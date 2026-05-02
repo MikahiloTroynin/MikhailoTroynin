@@ -47,8 +47,7 @@ function buildUaDocPath(categoryId, slug) {
 }
 
 function getEmbeddedUaDoc(slug) {
-  // Support both current and legacy global names used by generated UA bundles.
-  const map = window.EDGE_VEDA_DOCS_UA_CONTENT || window.EDGE_VEDA_UA_DOCS_CONTENT || {};
+  const map = window.EDGE_VEDA_DOCS_UA_CONTENT || {};
   return map[slug] || "";
 }
 
@@ -75,7 +74,7 @@ function EdgeVedaDocPage({ lang, slug }) {
     setLoadError("");
     if (!doc || !category) return;
 
-    const embedded = getEmbeddedUaDoc(doc.slug);
+    const embedded = getEmbeddedUaDoc(doc.slug) || (window.EDGE_VEDA_UA_DOCS_CONTENT || {})[doc.slug] || "";
     if (embedded) {
       setMd(embedded);
       return;
