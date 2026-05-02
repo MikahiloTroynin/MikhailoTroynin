@@ -13,7 +13,7 @@ function useMarkdownHtml(md) {
 
 function stripFrontMatter(md) {
   if (!md) return "";
-  return md.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
+  return md.replace(/^[ \t]*---[ \t]*\n[\s\S]*?\n[ \t]*---[ \t]*\n?/, "").trimStart();
 }
 
 function buildUaDocPath(categoryId, slug) {
