@@ -51,7 +51,6 @@ function EdgeVedaDocPage({ lang, slug }) {
 
   const [md, setMd] = React.useState("");
   const [loadError, setLoadError] = React.useState("");
-  const en = lang === "en";
 
   React.useEffect(() => {
     setMd("");
@@ -77,12 +76,13 @@ function EdgeVedaDocPage({ lang, slug }) {
       })
       .then((txt) => setMd(txt))
       .catch((e) => setLoadError(String(e?.message || e)));
-  }, [slug, en]);
+  }, [slug]);
 
   if (!doc) {
     return <main><div className="container page-header"><h1>{lang === "en" ? "Document not found" : "Документ не знайдено"}</h1><p><a href="#/sample/code-to-docs">← {lang === "en" ? "Back" : "Назад"}</a></p></div></main>;
   }
 
+  const en = lang === "en";
   const title = doc.title[lang];
   const catTitle = category.title[lang];
   const html = useMarkdownHtml(md);
