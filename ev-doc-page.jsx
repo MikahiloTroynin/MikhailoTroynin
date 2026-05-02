@@ -47,6 +47,7 @@ function buildUaDocPath(categoryId, slug) {
 }
 
 function getEmbeddedUaDoc(slug) {
+  // Support both current and legacy global names used by generated UA bundles.
   const map = window.EDGE_VEDA_DOCS_UA_CONTENT || window.EDGE_VEDA_UA_DOCS_CONTENT || {};
   return map[slug] || "";
 }
