@@ -40,6 +40,11 @@ function buildUaDocPath(categoryId, slug) {
   return `${base}/${catFolder}/${fileStem}_ua.md`;
 }
 
+function getEmbeddedUaDoc(slug) {
+  const map = window.EDGE_VEDA_DOCS_UA_CONTENT || {};
+  return map[slug] || "";
+}
+
 function EdgeVedaDocPage({ lang, slug }) {
   const cats = window.EDGE_VEDA_DOCS.categories;
   let doc = null;
@@ -56,6 +61,12 @@ function EdgeVedaDocPage({ lang, slug }) {
     setMd("");
     setLoadError("");
     if (!doc || !category) return;
+
+    const embedded = getEmbeddedUaDoc(doc.slug);
+    if (embedded) {
+      setMd(embedded);
+      return;
+    }
 
     const uaPath = buildUaDocPath(category.id, doc.slug);
     if (!uaPath) {
