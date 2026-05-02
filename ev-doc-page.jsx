@@ -1,13 +1,19 @@
 // Edge Veda docs page — renders markdown content for documentation entries
 
+function stripFrontmatter(md) {
+  if (!md) return "";
+  return md.replace(/^---\n[\s\S]*?\n---\n+/, "");
+}
+
 function useMarkdownHtml(md) {
   return React.useMemo(() => {
     if (!md) return "";
+    const content = stripFrontmatter(md);
     if (typeof marked !== "undefined" && marked.parse) {
       marked.setOptions({ breaks: true, gfm: true, mangle: false, headerIds: true });
-      return marked.parse(md);
+      return marked.parse(content);
     }
-    return "<pre>" + md.replace(/</g, "&lt;") + "</pre>";
+    return "<pre>" + content.replace(/</g, "&lt;") + "</pre>";
   }, [md]);
 }
 
