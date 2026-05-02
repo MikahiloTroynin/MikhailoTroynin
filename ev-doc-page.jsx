@@ -57,12 +57,6 @@ function EdgeVedaDocPage({ lang, slug }) {
     setLoadError("");
     if (!doc || !category) return;
 
-    const inlineContent = window.EDGE_VEDA_DOCS_UA_CONTENT?.[doc.slug];
-    if (inlineContent) {
-      setMd(inlineContent);
-      return;
-    }
-
     const uaPath = buildUaDocPath(category.id, doc.slug);
     if (!uaPath) {
       setLoadError("Unable to resolve document path.");
