@@ -115,7 +115,7 @@ function EdgeVedaDocPage({ lang, slug }) {
       </div>
       <section className="container" style={{ paddingBottom: 80 }}>
         <div className="detail-layout">
-          <article className="prose">
+          <article className="prose api-doc-prose">
             {cleanMd && <div dangerouslySetInnerHTML={{ __html: html }} />}
             {!md && !loadError && <p>{en ? "Loading documentation..." : "Завантаження документації..."}</p>}
             {loadError && <p style={{ color: "#b00020" }}>{en ? "Failed to load markdown:" : "Не вдалося завантажити markdown:"} {loadError}</p>}
