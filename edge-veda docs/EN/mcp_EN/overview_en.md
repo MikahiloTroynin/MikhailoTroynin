@@ -25,16 +25,7 @@ Use this section when you want to:
 
 Edge Veda is designed for on-device AI workflows: text generation, streaming, embeddings, RAG, vision, speech, image generation, runtime policy, scheduler behavior, and offline privacy. The MCP layer does not replace the Dart SDK. It gives external AI clients a safe way to call helper tools around the SDK and the project workspace.
 
-```mermaid
-flowchart LR
-    Client[MCP client] --> Server[Edge Veda MCP server]
-    Server --> Workspace[Edge Veda workspace]
-    Server --> Models[Local model files]
-    Server --> Docs[Markdown docs]
-    Server --> Flutter[Flutter / Dart project]
-    Flutter --> SDK[Edge Veda Dart SDK]
-    SDK --> Runtime[On-device runtime]
-```
+![mcp-overview](mermaid-diagrams/mcp-overview.png)
 
 ## Main components
 

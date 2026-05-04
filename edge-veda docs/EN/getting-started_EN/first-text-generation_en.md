@@ -37,21 +37,7 @@ The example uses this sequence:
 6. Stream generated tokens with `generateStream()`.
 7. Dispose runtime resources when the screen is closed.
 
-```mermaid
-sequenceDiagram
-    participant UI as Flutter screen
-    participant MM as ModelManager
-    participant SDK as EdgeVeda
-    participant RT as Native runtime
-
-    UI->>MM: downloadModel(ModelRegistry.llama32_1b)
-    MM-->>UI: modelPath
-    UI->>SDK: init(EdgeVedaConfig)
-    SDK->>RT: load model
-    UI->>SDK: generateStream(prompt)
-    SDK-->>UI: token chunks
-    UI->>SDK: dispose()
-```
+![gs-first-text-generation](mermaid-diagrams/gs-first-text-generation.png)
 
 ## Replace `lib/main.dart`
 

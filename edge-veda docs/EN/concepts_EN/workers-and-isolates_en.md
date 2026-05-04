@@ -65,22 +65,7 @@ Persistent workers improve repeated request latency, but they also keep memory a
 
 ## Worker lifecycle
 
-```mermaid
-stateDiagram-v2
-    [*] --> NotSpawned
-    NotSpawned --> Spawned: spawn()
-    Spawned --> Initializing: init model
-    Initializing --> Ready: model loaded
-    Ready --> Running: request received
-    Running --> Ready: request completed
-    Running --> Cancelling: cancel requested
-    Cancelling --> Ready: cleanup completed
-    Ready --> Idle: no active work
-    Idle --> Ready: new request
-    Idle --> Disposed: timeout or pressure
-    Ready --> Disposed: dispose()
-    Disposed --> [*]
-```
+![c-workers-and-isolates](mermaid-diagrams/c-workers-and-isolates.png)
 
 Documentation should explain which SDK methods spawn a worker, reuse it, or dispose it.
 

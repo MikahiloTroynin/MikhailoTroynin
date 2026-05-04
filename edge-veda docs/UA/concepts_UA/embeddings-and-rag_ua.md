@@ -42,24 +42,7 @@ related:
 
 ## RAG flow
 
-```mermaid
-flowchart LR
-    Document[Local document]
-    Chunk[Chunk text]
-    EmbedDoc[Create embeddings]
-    Index[VectorIndex]
-    Question[User question]
-    EmbedQuestion[Embed question]
-    Search[Search similar chunks]
-    Prompt[Build grounded prompt]
-    Generate[Generate answer]
-    Answer[Answer with sources]
-
-    Document --> Chunk --> EmbedDoc --> Index
-    Question --> EmbedQuestion --> Search
-    Index --> Search
-    Search --> Prompt --> Generate --> Answer
-```
+![c-embeddings-and-rag](mermaid-diagrams/c-embeddings-and-rag.png)
 
 Головна ідея: `generation` не є першим кроком. Перед нею має відбутися `retrieval`.
 

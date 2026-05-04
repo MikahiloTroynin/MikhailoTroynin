@@ -53,23 +53,7 @@ Use `ChatSession.sendStream()` when you need:
 
 ## Basic chat flow
 
-```mermaid
-sequenceDiagram
-    participant UI as Chat UI
-    participant SDK as EdgeVeda
-    participant Session as ChatSession
-    participant Model as Local model
-
-    UI->>SDK: init(EdgeVedaConfig)
-    SDK->>Model: load model once
-    UI->>Session: create ChatSession(edgeVeda)
-    UI->>Session: sendStream(user message)
-    Session->>Model: formatted chat prompt
-    Model-->>Session: token chunks
-    Session-->>UI: streamed chunks
-    UI->>Session: sendStream(next message)
-    Session->>Model: prompt with previous context
-```
+![gs-first-streaming-chat](mermaid-diagrams/gs-first-streaming-chat.png)
 
 ## Minimal console example
 
