@@ -6,7 +6,7 @@ window.I18N = {
       eyebrow: 'AI Technical Writing',
       lede: 'I create developer documentation from code and product context.',
       ctaPrimary: 'View work', ctaSecondary: 'Workflow',
-      meta: [{ k: 'Focus', v: 'API & code docs' }, { k: 'Format', v: 'Docs-as-code' }]
+      meta: [{ k: 'Focus', v: 'API Gateway docs' }, { k: 'Format', v: 'Docs-as-code' }]
     },
     whatIDocument: {
       title: 'What I document',
@@ -16,20 +16,20 @@ window.I18N = {
         { num: '02', title: 'SDK & library docs', body: 'Method-level reference with examples, types, errors and platform notes.' },
         { num: '03', title: 'Architecture docs', body: 'System diagrams, data flows, component responsibilities from codebase.' },
         { num: '04', title: 'Developer onboarding', body: 'Quickstarts, setup guides, first-run tutorials for new team members.' },
-        { num: '05', title: 'AI-assisted workflows', body: 'Prompt design, validation checklists, hybrid AI+human doc pipelines.' },
+        { num: '05', title: 'AI-assisted workflows', body: 'ampcode pipelines, CLARIFY files, impact logs, validation checklists, and human review.' },
         { num: '06', title: 'Internal runbooks', body: 'Operational procedures, troubleshooting trees, deployment checklists.' },
       ]
     },
     featured: { title: 'Featured samples', subtitle: 'Selected portfolio pieces.', viewAll: 'All samples' },
-    workflow: { title: 'Workflow', subtitle: 'From input to validated docs.', cta: 'Open workflow' },
+    workflow: { title: 'API Gateway documentation process', subtitle: 'A Git-based ampcode flow for documenting API Gateway routes by module.', cta: 'Open workflow' },
     tools: {
       title: 'Tooling',
       groups: [
-        { label: 'Writing', items: ['Markdown', 'Confluence', 'Docusaurus'] },
+        { label: 'Writing', items: ['Markdown', 'Docs-as-code', 'Templates'] },
         { label: 'Code', items: ['Git', 'GitHub', 'GitLab'] },
-        { label: 'API', items: ['OpenAPI', 'Swagger', 'Postman'] },
-        { label: 'AI', items: ['Claude', 'GPT-4', 'Prompting'] },
-        { label: 'Build', items: ['Jekyll', 'GitHub Pages', 'CI/CD'] },
+        { label: 'API', items: ['Routes', 'DTOs', 'OpenAPI'] },
+        { label: 'AI', items: ['ampcode', 'MCP', 'CLARIFY'] },
+        { label: 'Delivery', items: ['Git repo', 'MR review', 'Impact Log'] },
       ]
     },
     finalCta: { title: 'Need documentation?', body: 'Let\u2019s discuss your docs tasks.', ctaPrimary: 'Contact', ctaSecondary: 'Download CV' },
@@ -44,31 +44,33 @@ window.I18N = {
 
     // ── Workflow page (full structure expected by WorkflowPage component) ──
     workflowPage: {
-      title: 'Documentation workflow',
-      lede: 'A repeatable, AI-assisted process that turns code and product context into validated technical documentation.',
+      title: 'API Gateway route documentation workflow',
+      lede: 'A specialized ampcode workflow for documenting API Gateway routes by module: codebase mapping, CLARIFY questions for SMEs, document generation from a V.4 template, verification, and publication in Git.',
       tocTitle: 'On this page',
       principles: {
         title: 'Operating principles',
         items: [
-          { k: 'Accuracy first', v: 'Every claim is verified against source code, API behavior, or SME feedback before publishing.' },
-          { k: 'Docs as code', v: 'Documentation lives in Git, ships through PRs, and follows the same review process as product code.' },
-          { k: 'AI as hypothesis', v: 'AI drafts are treated as unverified hypotheses until every fact is checked against a ground-truth source.' },
+          { k: 'Map before documenting', v: 'ampcode first builds a code navigation index: route files, modules, Action classes, clients, configuration, middleware, and authorization guards.' },
+          { k: 'Interview before generation', v: 'Before drafting, ampcode analyzes code and Jira context, creates a CLARIFY file, and asks closed SME questions with fallback assumptions.' },
+          { k: 'Human in the loop', v: 'Every generated module document is checked by the technical writer before commit. Unverified facts stay marked with a warning.' },
         ]
       },
       checklist: {
-        title: 'Hallucination checklist',
+        title: 'Verification checklist',
         items: [
-          'Every API path, method, and status code matches the source or OpenAPI spec.',
-          'Every code snippet compiles or runs locally before merge.',
-          'Every default value and parameter type is confirmed in source.',
-          'No feature is described that does not exist in the current release.',
-          'Error names match typed exceptions in the codebase.',
-          'Platform support claims are verified on physical devices.',
-          'AI-generated content is explicitly marked as draft until validated.',
+          'Every documented route URL, HTTP method, channel, middleware, and Action class exists in the source code.',
+          'The module document follows AG-Draft_Module_Template_V4.md and covers all required sections.',
+          'Request parameters are checked against FormRequest, Request DTOs, validation rules, and glossary entries.',
+          'Response structure is checked against Response DTOs, return values, and exception handling.',
+          'Proxy chain is verified: Action → Service → Client, raw pass-through, or orchestration with multiple clients.',
+          'Feature flags, disabled_routes, environments, DI bindings, Graylog context, and external integrations are verified.',
+          'All SME answers from the CLARIFY file are applied; unanswered questions use fallback with a warning marker.',
+          'Mermaid sequence diagram renders correctly and reflects the real route-processing flow.',
+          'AG-Endpoints_Registry.md and Documentation_Updates_Log.md are updated after publication.',
         ]
       },
       prompts: {
-        title: 'Example prompts',
+        title: 'Example ampcode prompts',
       },
     },
 
@@ -143,7 +145,7 @@ window.I18N = {
       eyebrow: 'AI Technical Writing',
       lede: 'Створюю документацію для розробників на основі коду та продуктового контексту.',
       ctaPrimary: 'Дивитися роботи', ctaSecondary: 'Процес',
-      meta: [{ k: 'Фокус', v: 'API та code docs' }, { k: 'Формат', v: 'Docs-as-code' }]
+      meta: [{ k: 'Фокус', v: 'API Gateway docs' }, { k: 'Формат', v: 'Docs-as-code' }]
     },
     whatIDocument: {
       title: 'Що документую',
@@ -153,20 +155,20 @@ window.I18N = {
         { num: '02', title: 'SDK та бібліотеки', body: 'Довідник методів з прикладами, типами, помилками та платформними нотатками.' },
         { num: '03', title: 'Архітектурні доки', body: 'Діаграми систем, потоки даних, відповідальності компонентів із кодової бази.' },
         { num: '04', title: 'Developer onboarding', body: 'Quickstart-и, гайди налаштування, туторіали першого запуску для нових членів команди.' },
-        { num: '05', title: 'AI-assisted workflows', body: 'Промпт-дизайн, чекліси валідації, гібридні AI+людина doc-пайплайни.' },
+        { num: '05', title: 'AI-assisted workflows', body: 'ampcode pipelines, CLARIFY-файли, impact logs, validation checklists і human review.' },
         { num: '06', title: 'Внутрішні runbooks', body: 'Операційні процедури, дерева troubleshooting, чекліси деплою.' },
       ]
     },
     featured: { title: 'Обрані приклади', subtitle: 'Кейси з портфоліо.', viewAll: 'Усі приклади' },
-    workflow: { title: 'Процес', subtitle: 'Від вхідних матеріалів до валідації.', cta: 'Відкрити процес' },
+    workflow: { title: 'Процес документування API Gateway', subtitle: 'Git-based ampcode flow для документування роутів API Gateway по модулях.', cta: 'Відкрити процес' },
     tools: {
       title: 'Інструменти',
       groups: [
-        { label: 'Написання', items: ['Markdown', 'Confluence', 'Docusaurus'] },
+        { label: 'Написання', items: ['Markdown', 'Docs-as-code', 'Шаблони'] },
         { label: 'Код', items: ['Git', 'GitHub', 'GitLab'] },
-        { label: 'API', items: ['OpenAPI', 'Swagger', 'Postman'] },
-        { label: 'AI', items: ['Claude', 'GPT-4', 'Prompting'] },
-        { label: 'Збірка', items: ['Jekyll', 'GitHub Pages', 'CI/CD'] },
+        { label: 'API', items: ['Routes', 'DTOs', 'OpenAPI'] },
+        { label: 'AI', items: ['ampcode', 'MCP', 'CLARIFY'] },
+        { label: 'Доставка', items: ['Git repo', 'MR review', 'Impact Log'] },
       ]
     },
     finalCta: { title: 'Потрібна документація?', body: 'Обговоримо ваше завдання.', ctaPrimary: 'Контакти', ctaSecondary: 'Завантажити CV' },
@@ -181,31 +183,33 @@ window.I18N = {
 
     // ── Workflow page (full structure) ──
     workflowPage: {
-      title: 'Процес документації',
-      lede: 'Повторюваний AI-assisted процес, який перетворює код і продуктовий контекст на валідовану технічну документацію.',
+      title: 'Єдиний flow документування роутів API Gateway',
+      lede: 'Спеціалізований ampcode workflow для опису роутів API Gateway по модулях: розвідка кодової бази, CLARIFY-питання до SME, генерація документа за шаблоном V.4, верифікація та публікація в Git.',
       tocTitle: 'На цій сторінці',
       principles: {
         title: 'Робочі принципи',
         items: [
-          { k: 'Точність понад усе', v: 'Кожне твердження звіряється з кодом, поведінкою API або SME-фідбеком до публікації.' },
-          { k: 'Docs as code', v: 'Документація живе в Git, доставляється через PR-и і проходить той самий review, що й код продукту.' },
-          { k: 'AI як гіпотеза', v: 'AI-драфти трактуються як неперевірені гіпотези, доки кожен факт не звірено з ground-truth джерелом.' },
+          { k: 'Map before documenting', v: 'Перед генерацією ampcode створює навігаційний індекс коду: route-файли, модулі, Action-класи, clients, config, middleware та auth guards.' },
+          { k: 'Інтерв\u2019ю перед генерацією', v: 'Після аналізу коду та Jira ampcode створює CLARIFY-файл із закритими питаннями до SME, fallback-припущеннями та готовим prompt для нового треду.' },
+          { k: 'Human-in-the-loop', v: 'Кожен згенерований документ перевіряється техрайтером перед commit. Усе непідтверджене залишається з маркером попередження.' },
         ]
       },
       checklist: {
-        title: 'Чекліст галюцинацій',
+        title: 'Чекліст верифікації',
         items: [
-          'Кожен API path, method і status code збігається з кодом або OpenAPI-специфікацією.',
-          'Кожен code-сніпет компілюється або запускається локально до merge.',
-          'Кожне default value і тип параметра підтверджено в source.',
-          'Жодна feature не описана, якщо її немає в поточному релізі.',
-          'Назви помилок збігаються з typed exceptions у кодовій базі.',
-          'Platform support claims перевірено на фізичних пристроях.',
-          'AI-згенерований контент явно позначено як draft до валідації.',
+          'Кожен Route URL, HTTP method, channel, middleware та Action class існує в source code.',
+          'Документ модуля відповідає AG-Draft_Module_Template_V4.md і заповнює всі потрібні секції.',
+          'Request parameters перевірені через FormRequest, Request DTOs, validation rules та glossary.',
+          'Response structure перевірена через Response DTOs, return values та exception handling.',
+          'Proxy chain перевірений: Action → Service → Client, raw pass-through або orchestration з кількома clients.',
+          'Feature flags, disabled_routes, environments, DI bindings, Graylog context та external integrations перевірені.',
+          'Відповіді SME з CLARIFY-файлу враховані; питання без відповіді використовують fallback із warning marker.',
+          'Mermaid sequence diagram коректно рендериться і відображає реальний route-processing flow.',
+          'AG-Endpoints_Registry.md та Documentation_Updates_Log.md оновлені після публікації.',
         ]
       },
       prompts: {
-        title: 'Приклади промптів',
+        title: 'Приклади prompt-ів для ampcode',
       },
     },
 
@@ -284,6 +288,6 @@ window.SAMPLES = [
   { id:'code-to-docs', featured:true, order:2, category:'Code-to-Docs', tools:['Git','Markdown'], tags:['Architecture','Onboarding'],
     title:{en:'Codebase to docs', ua:'Codebase у документацію'},
     summary:{en:'Turned scattered knowledge into docs.', ua:'Перетворив розрізнені знання у документацію.'},
-    input:{en:['Codebase','README','SME notes'], ua:['Кодова база','README','Нотатки SME']},
+    input:{en:['Codebase','README','SME notes'], ua:['Кодова база','README','SME-нотатки']},
     output:{en:['Architecture docs','Runbooks','Onboarding'], ua:['Архітектурні доки','Runbook','Onboarding']} }
 ];
