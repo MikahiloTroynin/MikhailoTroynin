@@ -1,0 +1,22 @@
+flowchart TD
+    App[Flutter application]
+    Feature[Application feature code]
+    SDK[Edge Veda Dart SDK]
+    Sessions[Sessions and pipelines]
+    Workers[Persistent worker isolates]
+    Runtime[Scheduler, policies, telemetry]
+    FFI[FFI bindings]
+    Native[Native inference engines]
+    Device[Device CPU / GPU / memory / thermal signals]
+
+    App --> Feature
+    Feature --> SDK
+    SDK --> Sessions
+    SDK --> Workers
+    SDK --> Runtime
+    Sessions --> Workers
+    Workers --> FFI
+    FFI --> Native
+    Runtime --> Workers
+    Runtime --> Device
+    Native --> Device

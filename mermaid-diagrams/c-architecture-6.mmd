@@ -1,0 +1,11 @@
+stateDiagram-v2
+    [*] --> NotInitialized
+    NotInitialized --> Initializing: init()
+    Initializing --> Ready: model loaded
+    Ready --> Running: request starts
+    Running --> Ready: request completes
+    Ready --> Degraded: pressure detected
+    Degraded --> Ready: pressure clears
+    Ready --> Disposed: dispose()
+    Degraded --> Disposed: eviction or dispose()
+    Disposed --> [*]

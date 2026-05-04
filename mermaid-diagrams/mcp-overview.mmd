@@ -1,0 +1,8 @@
+flowchart LR
+    Client[MCP client] --> Server[Edge Veda MCP server]
+    Server --> Workspace[Edge Veda workspace]
+    Server --> Models[Local model files]
+    Server --> Docs[Markdown docs]
+    Server --> Flutter[Flutter / Dart project]
+    Flutter --> SDK[Edge Veda Dart SDK]
+    SDK --> Runtime[On-device runtime]

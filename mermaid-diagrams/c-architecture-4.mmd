@@ -1,0 +1,13 @@
+flowchart LR
+    Q[User question]
+    EmbedQ[Embed question]
+    Search[Search VectorIndex]
+    Context[Build context]
+    Generate[Generate answer]
+    Answer[Answer with sources]
+
+    Q --> EmbedQ
+    EmbedQ --> Search
+    Search --> Context
+    Context --> Generate
+    Generate --> Answer
