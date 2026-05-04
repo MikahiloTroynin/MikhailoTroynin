@@ -4,7 +4,7 @@ function useMarkdownHtml(md) {
   return React.useMemo(() => {
     if (!md) return "";
     if (typeof marked !== "undefined" && marked.parse) {
-      marked.setOptions({ breaks: true, gfm: true, mangle: false, headerIds: true });
+      marked.setOptions({ breaks: true, gfm: true });
       return marked.parse(md);
     }
     return "<pre>" + md.replace(/</g, "&lt;") + "</pre>";
