@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant App as Flutter app
+    participant SDK as Edge Veda SDK
+    participant Worker as Streaming worker
+    participant Native as Native text engine
+    participant Runtime as Scheduler / policy
+
+    App->>SDK: generate(prompt) or generateStream(prompt)
+    SDK->>Runtime: check current budget and pressure
+    Runtime-->>SDK: allow, reduce, pause, or reject
+    SDK->>Worker: send generation request
+    Worker->>Native: run inference
+    Native-->>Worker: token or final response
+    Worker-->>SDK: stream chunk or result
+    SDK-->>App: update UI

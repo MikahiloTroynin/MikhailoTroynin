@@ -1,0 +1,11 @@
+flowchart TD
+    Camera[Camera frames]
+    Queue[FrameQueue]
+    Policy[Runtime policy]
+    Vision[Vision worker]
+    Result[Descriptions / detections]
+
+    Camera --> Queue
+    Policy --> Queue
+    Queue --> Vision
+    Vision --> Result

@@ -1,0 +1,65 @@
+flowchart TB
+    subgraph Flutter[Flutter / Dart]
+      UI[App UI]
+      EV[EdgeVeda]
+      Chat[ChatSession]
+      Whisper[WhisperSession]
+      RAG[RagPipeline]
+      VI[VectorIndex]
+      Advisor[ModelAdvisor]
+    end
+
+    subgraph Workers[Persistent workers]
+      TextWorker[StreamingWorker]
+      VisionWorker[VisionWorker]
+      SpeechWorker[WhisperWorker]
+      ImageWorker[ImageWorker]
+    end
+
+    subgraph Supervision[Runtime supervision]
+      Scheduler[Scheduler]
+      Policy[RuntimePolicy]
+      Budget[EdgeVedaBudget]
+      Telemetry[TelemetryService]
+      Trace[PerfTrace]
+      FrameQueue[FrameQueue]
+    end
+
+    subgraph Native[Native layer]
+      FFI[FFI bindings]
+      Core[EdgeVedaCore framework]
+      TextEngine[Text engine]
+      VisionEngine[Vision engine]
+      WhisperEngine[Whisper engine]
+      ImageEngine[Image engine]
+    end
+
+    UI --> EV
+    UI --> Chat
+    UI --> Whisper
+    UI --> RAG
+    RAG --> VI
+    Chat --> EV
+    RAG --> EV
+    EV --> TextWorker
+    EV --> VisionWorker
+    EV --> ImageWorker
+    Whisper --> SpeechWorker
+    Scheduler --> TextWorker
+    Scheduler --> VisionWorker
+    Scheduler --> SpeechWorker
+    Scheduler --> ImageWorker
+    Policy --> Scheduler
+    Budget --> Scheduler
+    Telemetry --> Policy
+    FrameQueue --> VisionWorker
+    TextWorker --> FFI
+    VisionWorker --> FFI
+    SpeechWorker --> FFI
+    ImageWorker --> FFI
+    FFI --> Core
+    Core --> TextEngine
+    Core --> VisionEngine
+    Core --> WhisperEngine
+    Core --> ImageEngine
+    Trace --> Scheduler
