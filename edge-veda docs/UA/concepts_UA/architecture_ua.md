@@ -17,6 +17,19 @@ Edge Veda організований як layered on-device AI runtime. Flutter-
 
 Архітектура спроєктована для long-running local AI workloads. Замість того щоб завантажувати модель для кожного запиту, Edge Veda може тримати workers активними, reuse model state, monitor device pressure і degrade behavior, коли пристрій під навантаженням.
 
+
+## Експорт Mermaid-діаграм у PNG
+
+Щоб згенерувати PNG із Mermaid-блоків цього документа, потрібен встановлений `mmdc` (Mermaid CLI) у `PATH`.
+
+Перевірка:
+
+```bash
+mmdc -h
+```
+
+Якщо команда повертає `command not found`, встановіть Mermaid CLI локально (поза обмеженим CI/проксі середовищем), а потім згенеруйте діаграми скриптом/командами з цього репозиторію.
+
 ## High-level view
 
 ```mermaid
