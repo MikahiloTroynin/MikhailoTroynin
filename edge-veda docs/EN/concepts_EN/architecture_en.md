@@ -19,30 +19,7 @@ The architecture is designed for long-running local AI workloads. Instead of loa
 
 ## High-level view
 
-```mermaid
-flowchart TD
-    App[Flutter application]
-    Feature[Application feature code]
-    SDK[Edge Veda Dart SDK]
-    Sessions[Sessions and pipelines]
-    Workers[Persistent worker isolates]
-    Runtime[Scheduler, policies, telemetry]
-    FFI[FFI bindings]
-    Native[Native inference engines]
-    Device[Device CPU / GPU / memory / thermal signals]
-
-    App --> Feature
-    Feature --> SDK
-    SDK --> Sessions
-    SDK --> Workers
-    SDK --> Runtime
-    Sessions --> Workers
-    Workers --> FFI
-    FFI --> Native
-    Runtime --> Workers
-    Runtime --> Device
-    Native --> Device
-```
+![c-architecture](mermaid-diagrams/c-architecture.png)
 
 This structure separates product code from low-level runtime concerns. The app owns the user experience. Edge Veda owns the local AI execution layer.
 
@@ -162,95 +139,13 @@ Because this layer touches memory-intensive workloads, lifecycle and error handl
 
 ## Core architecture diagram
 
-```mermaid
-flowchart TB
-    subgraph Flutter[Flutter / Dart]
-      UI[App UI]
-      EV[EdgeVeda]
-      Chat[ChatSession]
-      Whisper[WhisperSession]
-      RAG[RagPipeline]
-      VI[VectorIndex]
-      Advisor[ModelAdvisor]
-    end
-
-    subgraph Workers[Persistent workers]
-      TextWorker[StreamingWorker]
-      VisionWorker[VisionWorker]
-      SpeechWorker[WhisperWorker]
-      ImageWorker[ImageWorker]
-    end
-
-    subgraph Supervision[Runtime supervision]
-      Scheduler[Scheduler]
-      Policy[RuntimePolicy]
-      Budget[EdgeVedaBudget]
-      Telemetry[TelemetryService]
-      Trace[PerfTrace]
-      FrameQueue[FrameQueue]
-    end
-
-    subgraph Native[Native layer]
-      FFI[FFI bindings]
-      Core[EdgeVedaCore framework]
-      TextEngine[Text engine]
-      VisionEngine[Vision engine]
-      WhisperEngine[Whisper engine]
-      ImageEngine[Image engine]
-    end
-
-    UI --> EV
-    UI --> Chat
-    UI --> Whisper
-    UI --> RAG
-    RAG --> VI
-    Chat --> EV
-    RAG --> EV
-    EV --> TextWorker
-    EV --> VisionWorker
-    EV --> ImageWorker
-    Whisper --> SpeechWorker
-    Scheduler --> TextWorker
-    Scheduler --> VisionWorker
-    Scheduler --> SpeechWorker
-    Scheduler --> ImageWorker
-    Policy --> Scheduler
-    Budget --> Scheduler
-    Telemetry --> Policy
-    FrameQueue --> VisionWorker
-    TextWorker --> FFI
-    VisionWorker --> FFI
-    SpeechWorker --> FFI
-    ImageWorker --> FFI
-    FFI --> Core
-    Core --> TextEngine
-    Core --> VisionEngine
-    Core --> WhisperEngine
-    Core --> ImageEngine
-    Trace --> Scheduler
-```
+![c-architecture-2](mermaid-diagrams/c-architecture-2.png)
 
 ## Request lifecycle: text generation
 
 A typical text generation request moves through the runtime like this:
 
-```mermaid
-sequenceDiagram
-    participant App as Flutter app
-    participant SDK as Edge Veda SDK
-    participant Worker as Streaming worker
-    participant Native as Native text engine
-    participant Runtime as Scheduler / policy
-
-    App->>SDK: generate(prompt) or generateStream(prompt)
-    SDK->>Runtime: check current budget and pressure
-    Runtime-->>SDK: allow, reduce, pause, or reject
-    SDK->>Worker: send generation request
-    Worker->>Native: run inference
-    Native-->>Worker: token or final response
-    Worker-->>SDK: stream chunk or result
-    SDK-->>App: update UI
-```
+![c-architecture-3](mermaid-diagrams/c-architecture-3.png)
 
 For streaming, the app should render chunks as they arrive and allow cancellation.
 
@@ -258,21 +153,7 @@ For streaming, the app should render chunks as they arrive and allow cancellatio
 
 A RAG flow combines retrieval and generation.
 
-```mermaid
-flowchart LR
-    Q[User question]
-    EmbedQ[Embed question]
-    Search[Search VectorIndex]
-    Context[Build context]
-    Generate[Generate answer]
-    Answer[Answer with sources]
-
-    Q --> EmbedQ
-    EmbedQ --> Search
-    Search --> Context
-    Context --> Generate
-    Generate --> Answer
-```
+![c-architecture-4](mermaid-diagrams/c-architecture-4.png)
 
 The important architectural point is that RAG is not only text generation. It depends on embedding quality, chunking strategy, vector search, prompt construction, and answer validation.
 
@@ -282,19 +163,7 @@ Continuous vision is different from one-time generation because it can produce u
 
 A safe vision architecture needs backpressure:
 
-```mermaid
-flowchart TD
-    Camera[Camera frames]
-    Queue[FrameQueue]
-    Policy[Runtime policy]
-    Vision[Vision worker]
-    Result[Descriptions / detections]
-
-    Camera --> Queue
-    Policy --> Queue
-    Queue --> Vision
-    Vision --> Result
-```
+![c-architecture-5](mermaid-diagrams/c-architecture-5.png)
 
 The queue should avoid growing forever. Under pressure, the runtime can drop frames, reduce resolution, lower frequency, or pause processing.
 
@@ -302,19 +171,7 @@ The queue should avoid growing forever. Under pressure, the runtime can drop fra
 
 Model lifecycle is one of the most important parts of Edge Veda architecture.
 
-```mermaid
-stateDiagram-v2
-    [*] --> NotInitialized
-    NotInitialized --> Initializing: init()
-    Initializing --> Ready: model loaded
-    Ready --> Running: request starts
-    Running --> Ready: request completes
-    Ready --> Degraded: pressure detected
-    Degraded --> Ready: pressure clears
-    Ready --> Disposed: dispose()
-    Degraded --> Disposed: eviction or dispose()
-    Disposed --> [*]
-```
+![c-architecture-6](mermaid-diagrams/c-architecture-6.png)
 
 Developers should understand whether a method:
 

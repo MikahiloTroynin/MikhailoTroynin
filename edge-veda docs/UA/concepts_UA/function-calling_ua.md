@@ -52,7 +52,7 @@ Language model може зрозуміти intent, але не має напря
 
 ## Function calling flow
 
-![c-function-calling](../../../mermaid-diagrams/c-function-calling.png)
+![c-function-calling](mermaid-diagrams/c-function-calling.png)
 
 Model пропонує. App перевіряє і виконує.
 

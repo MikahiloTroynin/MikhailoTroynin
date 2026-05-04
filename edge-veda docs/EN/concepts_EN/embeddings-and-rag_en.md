@@ -42,24 +42,7 @@ This makes answers more grounded and reduces the need to paste large documents i
 
 ## RAG flow
 
-```mermaid
-flowchart LR
-    Document[Local document]
-    Chunk[Chunk text]
-    EmbedDoc[Create embeddings]
-    Index[VectorIndex]
-    Question[User question]
-    EmbedQuestion[Embed question]
-    Search[Search similar chunks]
-    Prompt[Build grounded prompt]
-    Generate[Generate answer]
-    Answer[Answer with sources]
-
-    Document --> Chunk --> EmbedDoc --> Index
-    Question --> EmbedQuestion --> Search
-    Index --> Search
-    Search --> Prompt --> Generate --> Answer
-```
+![c-embeddings-and-rag](mermaid-diagrams/c-embeddings-and-rag.png)
 
 The important idea is that generation is not the first step. Retrieval happens before generation.
 

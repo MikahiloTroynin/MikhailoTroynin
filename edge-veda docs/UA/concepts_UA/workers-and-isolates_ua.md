@@ -67,7 +67,7 @@ Persistent workers покращують repeated request latency, але keep me
 
 ## Worker lifecycle
 
-![c-workers-and-isolates](../../../mermaid-diagrams/c-workers-and-isolates.png)
+![c-workers-and-isolates](mermaid-diagrams/c-workers-and-isolates.png)
 
 Documentation має пояснювати, які SDK methods spawn worker, reuse його або dispose.
 

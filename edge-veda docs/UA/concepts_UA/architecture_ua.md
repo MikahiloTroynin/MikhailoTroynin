@@ -19,7 +19,7 @@ Edge Veda організований як layered on-device AI runtime. Flutter-
 
 ## High-level view
 
-![c-architecture](../../../mermaid-diagrams/c-architecture.png)
+![c-architecture](mermaid-diagrams/c-architecture.png)
 
 Така структура відділяє product code від low-level runtime concerns. Застосунок відповідає за user experience. Edge Veda відповідає за local AI execution layer.
 
@@ -139,13 +139,13 @@ Native layer виконує actual model inference. Він може wrap-ити 
 
 ## Core architecture diagram
 
-![c-architecture-2](../../../mermaid-diagrams/c-architecture-2.png)
+![c-architecture-2](mermaid-diagrams/c-architecture-2.png)
 
 ## Request lifecycle: text generation
 
 Типовий text generation request проходить через runtime так:
 
-![c-architecture-3](../../../mermaid-diagrams/c-architecture-3.png)
+![c-architecture-3](mermaid-diagrams/c-architecture-3.png)
 
 Для streaming застосунок має render chunks as they arrive і дозволяти cancellation.
 
@@ -153,7 +153,7 @@ Native layer виконує actual model inference. Він може wrap-ити 
 
 RAG flow поєднує retrieval і generation.
 
-![c-architecture-4](../../../mermaid-diagrams/c-architecture-4.png)
+![c-architecture-4](mermaid-diagrams/c-architecture-4.png)
 
 Важлива архітектурна ідея: RAG — це не лише text generation. Він залежить від embedding quality, chunking strategy, vector search, prompt construction і answer validation.
 
@@ -163,7 +163,7 @@ Continuous vision відрізняється від one-time generation, бо м
 
 Безпечна vision architecture потребує backpressure:
 
-![c-architecture-5](../../../mermaid-diagrams/c-architecture-5.png)
+![c-architecture-5](mermaid-diagrams/c-architecture-5.png)
 
 Queue не має рости нескінченно. Under pressure runtime може drop frames, reduce resolution, lower frequency або pause processing.
 
@@ -171,7 +171,7 @@ Queue не має рости нескінченно. Under pressure runtime мо
 
 Model lifecycle — одна з найважливіших частин архітектури Edge Veda.
 
-![c-architecture-6](../../../mermaid-diagrams/c-architecture-6.png)
+![c-architecture-6](mermaid-diagrams/c-architecture-6.png)
 
 Розробники мають розуміти, чи конкретний method:
 

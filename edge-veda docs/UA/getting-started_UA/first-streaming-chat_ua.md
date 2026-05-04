@@ -53,7 +53,7 @@ last_reviewed: "2026-04-29"
 
 ## Базовий chat flow
 
-![gs-first-streaming-chat](../../../mermaid-diagrams/gs-first-streaming-chat.png)
+![gs-first-streaming-chat](mermaid-diagrams/gs-first-streaming-chat.png)
 
 ## Мінімальний console example
 

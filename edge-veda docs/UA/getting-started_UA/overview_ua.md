@@ -49,7 +49,7 @@ Edge Veda особливо доречний, коли потрібно:
 3. **Native runtime** — запускає локальний inference engine через native bindings.
 4. **Model files** — локальні файли моделей, які застосунок завантажує, імпортує або постачає разом із білдом.
 
-![gs-overview](../../../mermaid-diagrams/gs-overview.png)
+![gs-overview](mermaid-diagrams/gs-overview.png)
 
 ## Поточний getting-started шлях
 

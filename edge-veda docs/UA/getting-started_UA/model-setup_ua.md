@@ -29,7 +29,7 @@ last_reviewed: "2026-04-29"
 
 ## Model setup flow
 
-![gs-model-setup](../../../mermaid-diagrams/gs-model-setup.png)
+![gs-model-setup](mermaid-diagrams/gs-model-setup.png)
 
 ## 1. Визначте профіль пристрою
 

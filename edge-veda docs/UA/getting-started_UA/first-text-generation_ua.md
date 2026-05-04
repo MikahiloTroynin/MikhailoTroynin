@@ -37,7 +37,7 @@ last_reviewed: "2026-04-29"
 6. Передати згенеровані токени через `generateStream()`.
 7. Звільнити runtime resources після закриття екрана.
 
-![gs-first-text-generation](../../../mermaid-diagrams/gs-first-text-generation.png)
+![gs-first-text-generation](mermaid-diagrams/gs-first-text-generation.png)
 
 ## Замініть `lib/main.dart`
 

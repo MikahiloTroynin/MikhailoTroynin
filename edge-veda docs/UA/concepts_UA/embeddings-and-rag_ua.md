@@ -42,7 +42,7 @@ related:
 
 ## RAG flow
 
-![c-embeddings-and-rag](../../../mermaid-diagrams/c-embeddings-and-rag.png)
+![c-embeddings-and-rag](mermaid-diagrams/c-embeddings-and-rag.png)
 
 Головна ідея: `generation` не є першим кроком. Перед нею має відбутися `retrieval`.
 

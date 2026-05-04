@@ -53,7 +53,7 @@ SDK names треба звірити з current source перед code examples.
 
 ## Structured output flow
 
-![c-structured-output](../../../mermaid-diagrams/c-structured-output.png)
+![c-structured-output](mermaid-diagrams/c-structured-output.png)
 
 App має використовувати validated result, а не raw model text.
 

@@ -25,7 +25,7 @@ MCP означає **Model Context Protocol**. У цьому наборі док
 
 Edge Veda орієнтований на on-device AI workflow: text generation, streaming, embeddings, RAG, vision, speech, image generation, runtime policy, scheduler behavior і offline privacy. MCP layer не замінює Dart SDK. Він дає зовнішнім AI clients безпечний спосіб викликати helper tools навколо SDK і project workspace.
 
-![mcp-overview](../../../mermaid-diagrams/mcp-overview.png)
+![mcp-overview](mermaid-diagrams/mcp-overview.png)
 
 ## Основні компоненти
 
