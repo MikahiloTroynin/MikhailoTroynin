@@ -15,14 +15,14 @@ function App() {
 
   // localStorage for lang/theme so refresh keeps state
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("folio-prefs") || "{}");
+    const stored = JSON.parse(localStorage.getItem("portfolio-prefs") || "{}");
     if (stored.lang && stored.lang !== tweaks.lang) setTweak("lang", stored.lang);
     if (stored.theme && stored.theme !== tweaks.theme) setTweak("theme", stored.theme);
     if (stored.accent && stored.accent !== tweaks.accent) setTweak("accent", stored.accent);
   // eslint-disable-next-line
   }, []);
   useEffect(() => {
-    localStorage.setItem("folio-prefs", JSON.stringify({ lang: tweaks.lang, theme: tweaks.theme, accent: tweaks.accent }));
+    localStorage.setItem("portfolio-prefs", JSON.stringify({ lang: tweaks.lang, theme: tweaks.theme, accent: tweaks.accent }));
     document.documentElement.setAttribute("data-theme", tweaks.theme);
     document.documentElement.setAttribute("data-accent", tweaks.accent);
     document.documentElement.setAttribute("lang", tweaks.lang === "ua" ? "uk" : "en");

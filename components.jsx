@@ -1,4 +1,4 @@
-// Folio components — all pages, header, footer, hero panel, etc.
+// Portfolio components — all pages, header, footer, hero panel, etc.
 // React 18 + Babel. Globals: I18N, SAMPLES.
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -121,7 +121,7 @@ const CODE_TABS = [
 
 const REQ_LINES = [
 { c: <><span className="tk-comment"># Authenticate and create a task</span></> },
-{ c: <><span className="tk-flag">curl</span> <span className="tk-flag">-X</span> <span className="tk-method">POST</span> <span className="tk-url">https://api.folio.dev/v1/tasks</span> \\</> },
+{ c: <><span className="tk-flag">curl</span> <span className="tk-flag">-X</span> <span className="tk-method">POST</span> <span className="tk-url">https://api.portfolio.dev/v1/tasks</span> \\</> },
 { c: <>{"  "}<span className="tk-flag">-H</span> <span className="tk-str">"Authorization: Bearer $FOLIO_TOKEN"</span> \\</> },
 { c: <>{"  "}<span className="tk-flag">-H</span> <span className="tk-str">"Content-Type: application/json"</span> \\</> },
 { c: <>{"  "}<span className="tk-flag">-d</span> <span className="tk-str">{`'{`}</span></> },
@@ -648,11 +648,11 @@ See @bob for help.`}</pre>
           <div className="ba-head">● After</div>
           <pre>{`# Authentication
 
-Folio API uses bearer tokens. Each request must include:
+Portfolio API uses bearer tokens. Each request must include:
 
   Authorization: Bearer <token>
 
-Generate a token at https://app.folio.dev/settings/tokens.
+Generate a token at https://app.portfolio.dev/settings/tokens.
 Tokens scope to a workspace and expire after 90 days.`}</pre>
         </div>
       </div>
@@ -712,11 +712,11 @@ See @bob for help.`}</pre>
           <div className="ba-head">● Після</div>
           <pre>{`# Authentication
 
-Folio API uses bearer tokens. Each request must include:
+Portfolio API uses bearer tokens. Each request must include:
 
   Authorization: Bearer <token>
 
-Generate a token at https://app.folio.dev/settings/tokens.
+Generate a token at https://app.portfolio.dev/settings/tokens.
 Tokens scope to a workspace and expire after 90 days.`}</pre>
         </div>
       </div>
@@ -1213,7 +1213,7 @@ function AboutPage({ lang }) {
             <div className="links">
               <a href="#" onClick={(e) => e.preventDefault()}>
                 <span className="label">EMAIL</span>
-                <span>hello@folio.dev</span>
+                <span>hello@portfolio.dev</span>
               </a>
               <a href="#" onClick={(e) => e.preventDefault()}>
                 <span className="label">LINKEDIN</span>
@@ -1317,9 +1317,9 @@ function ContactPage({ lang }) {
           <div className="contact-direct">
             <h3>{t.directTitle}</h3>
             <div className="channels">
-              <a className="channel" href="mailto:hello@folio.dev">
+              <a className="channel" href="mailto:hello@portfolio.dev">
                 <span className="label">EMAIL</span>
-                <span>hello@folio.dev</span>
+                <span>hello@portfolio.dev</span>
               </a>
               <a className="channel" href="#" onClick={(e) => e.preventDefault()}>
                 <span className="label">LINKEDIN</span>
