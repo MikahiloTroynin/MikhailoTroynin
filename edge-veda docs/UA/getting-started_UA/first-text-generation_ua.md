@@ -37,21 +37,7 @@ last_reviewed: "2026-04-29"
 6. Передати згенеровані токени через `generateStream()`.
 7. Звільнити runtime resources після закриття екрана.
 
-```mermaid
-sequenceDiagram
-    participant UI as Flutter screen
-    participant MM as ModelManager
-    participant SDK as EdgeVeda
-    participant RT as Native runtime
-
-    UI->>MM: downloadModel(ModelRegistry.llama32_1b)
-    MM-->>UI: modelPath
-    UI->>SDK: init(EdgeVedaConfig)
-    SDK->>RT: load model
-    UI->>SDK: generateStream(prompt)
-    SDK-->>UI: token chunks
-    UI->>SDK: dispose()
-```
+![gs-first-text-generation](../../../mermaid-diagrams/gs-first-text-generation.png)
 
 ## Замініть `lib/main.dart`
 

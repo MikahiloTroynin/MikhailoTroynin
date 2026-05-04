@@ -49,13 +49,7 @@ Edge Veda особливо доречний, коли потрібно:
 3. **Native runtime** — запускає локальний inference engine через native bindings.
 4. **Model files** — локальні файли моделей, які застосунок завантажує, імпортує або постачає разом із білдом.
 
-```mermaid
-flowchart LR
-    A[Flutter UI] --> B[Edge Veda Dart SDK]
-    B --> C[Native on-device runtime]
-    C --> D[Local model file]
-    C --> E[Device resources: CPU, GPU, memory, battery]
-```
+![gs-overview](../../../mermaid-diagrams/gs-overview.png)
 
 ## Поточний getting-started шлях
 

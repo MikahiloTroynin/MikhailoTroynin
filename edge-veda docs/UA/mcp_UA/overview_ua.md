@@ -25,16 +25,7 @@ MCP означає **Model Context Protocol**. У цьому наборі док
 
 Edge Veda орієнтований на on-device AI workflow: text generation, streaming, embeddings, RAG, vision, speech, image generation, runtime policy, scheduler behavior і offline privacy. MCP layer не замінює Dart SDK. Він дає зовнішнім AI clients безпечний спосіб викликати helper tools навколо SDK і project workspace.
 
-```mermaid
-flowchart LR
-    Client[MCP client] --> Server[Edge Veda MCP server]
-    Server --> Workspace[Edge Veda workspace]
-    Server --> Models[Local model files]
-    Server --> Docs[Markdown docs]
-    Server --> Flutter[Flutter / Dart project]
-    Flutter --> SDK[Edge Veda Dart SDK]
-    SDK --> Runtime[On-device runtime]
-```
+![mcp-overview](../../../mermaid-diagrams/mcp-overview.png)
 
 ## Основні компоненти
 
