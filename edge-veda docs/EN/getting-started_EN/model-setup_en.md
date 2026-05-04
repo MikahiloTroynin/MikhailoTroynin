@@ -29,18 +29,7 @@ It is the safest first choice because it is small enough for modern iPhones, sup
 
 ## Model setup flow
 
-```mermaid
-flowchart TD
-    A[Detect device] --> B[Choose use case]
-    B --> C[Ask ModelAdvisor]
-    C --> D{Model fits?}
-    D -- No --> E[Choose a smaller model]
-    D -- Yes --> F{Enough storage?}
-    F -- No --> G[Free storage or choose smaller model]
-    F -- Yes --> H[Download or import model]
-    H --> I[Initialize EdgeVeda]
-    I --> J[Run first prompt]
-```
+![gs-model-setup](mermaid-diagrams/gs-model-setup.png)
 
 ## 1. Detect the device
 

@@ -49,13 +49,7 @@ A typical Edge Veda integration has four parts:
 3. **Native runtime** — runs the underlying local inference engine through native bindings.
 4. **Model files** — local model assets downloaded, imported, or bundled with the application.
 
-```mermaid
-flowchart LR
-    A[Flutter UI] --> B[Edge Veda Dart SDK]
-    B --> C[Native on-device runtime]
-    C --> D[Local model file]
-    C --> E[Device resources: CPU, GPU, memory, battery]
-```
+![gs-overview](mermaid-diagrams/gs-overview.png)
 
 ## Current getting-started path
 

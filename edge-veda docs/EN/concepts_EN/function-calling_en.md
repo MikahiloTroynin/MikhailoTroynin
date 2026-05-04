@@ -52,23 +52,7 @@ Names should be verified against the current SDK before publishing code samples.
 
 ## Function calling flow
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant App
-    participant Model
-    participant Tool as Local tool
-
-    User->>App: Ask for an action
-    App->>Model: Send prompt + tool definitions
-    Model-->>App: Tool call with arguments
-    App->>App: Validate arguments
-    App->>Tool: Execute local function
-    Tool-->>App: Tool result
-    App->>Model: Send tool result
-    Model-->>App: Final answer
-    App-->>User: Show result
-```
+![c-function-calling](mermaid-diagrams/c-function-calling.png)
 
 The model proposes. The app validates and executes.
 

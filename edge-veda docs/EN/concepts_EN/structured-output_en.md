@@ -53,20 +53,7 @@ SDK names should be verified against the current source before publishing code e
 
 ## Structured output flow
 
-```mermaid
-flowchart TD
-    Prompt[Prompt + schema]
-    Grammar[Grammar constraints]
-    Model[Local model]
-    Raw[Raw output]
-    Recover[JSON recovery]
-    Validate[Schema validation]
-    App[Application code]
-
-    Prompt --> Grammar --> Model --> Raw --> Recover --> Validate
-    Validate -->|valid| App
-    Validate -->|invalid| Error[Return structured error]
-```
+![c-structured-output](mermaid-diagrams/c-structured-output.png)
 
 The app should use the validated result, not the raw model text.
 
