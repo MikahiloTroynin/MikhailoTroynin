@@ -16,17 +16,21 @@ function stripFrontMatter(md) {
   return md.replace(/^[ \t]*---[ \t]*\n[\s\S]*?\n[ \t]*---[ \t]*\n?/, "").trimStart();
 }
 
-function buildUaDocPath(categoryId, slug) {
-  const base = "edge-veda docs/UA";
+function buildDocPath(categoryId, slug, lang) {
+  const isEn = lang === "en";
+  const base = isEn ? "edge-veda docs/EN" : "edge-veda docs/UA";
+  const suffix = isEn ? "EN" : "UA";
+  const ext = isEn ? "_en.md" : "_ua.md";
+
   const catFolder = {
-    "getting-started": "getting-started_UA",
-    concepts: "concepts_UA",
-    guides: "guides_UA",
-    examples: "examples_UA",
-    mcp: "mcp_UA",
-    platforms: "platforms_UA",
-    reference: "reference_UA",
-    troubleshooting: "troubleshooting_UA",
+    "getting-started": `getting-started_${suffix}`,
+    concepts: `concepts_${suffix}`,
+    guides: `guides_${suffix}`,
+    examples: `examples_${suffix}`,
+    mcp: `mcp_${suffix}`,
+    platforms: `platforms_${suffix}`,
+    reference: `reference_${suffix}`,
+    troubleshooting: `troubleshooting_${suffix}`,
   }[categoryId];
   if (!catFolder) return null;
 
@@ -42,11 +46,13 @@ function buildUaDocPath(categoryId, slug) {
   }[categoryId] || "";
 
   const fileStem = slug.startsWith(slugPrefix) ? slug.slice(slugPrefix.length) : slug;
-  return `${base}/${catFolder}/${fileStem}_ua.md`;
+  return `${base}/${catFolder}/${fileStem}${ext}`;
 }
 
-function getEmbeddedUaDoc(slug) {
-  const map = window.EDGE_VEDA_DOCS_UA_CONTENT || {};
+function getEmbeddedDoc(slug, lang) {
+  const map = lang === "en"
+    ? (window.EDGE_VEDA_DOCS_EN_CONTENT || {})
+    : (window.EDGE_VEDA_DOCS_UA_CONTENT || {});
   return map[slug] || "";
 }
 
@@ -67,26 +73,26 @@ function EdgeVedaDocPage({ lang, slug }) {
     setLoadError("");
     if (!doc || !category) return;
 
-    const embedded = getEmbeddedUaDoc(doc.slug);
+    const embedded = getEmbeddedDoc(doc.slug, lang);
     if (embedded) {
       setMd(embedded);
       return;
     }
 
-    const uaPath = buildUaDocPath(category.id, doc.slug);
-    if (!uaPath) {
+    const docPath = buildDocPath(category.id, doc.slug, lang);
+    if (!docPath) {
       setLoadError("Unable to resolve document path.");
       return;
     }
 
-    fetch(encodeURI(uaPath))
+    fetch(encodeURI(docPath))
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.text();
       })
       .then((txt) => setMd(txt))
       .catch((e) => setLoadError(String(e?.message || e)));
-  }, [slug]);
+  }, [slug, lang]);
 
   if (!doc) {
     return <main><div className="container page-header"><h1>{lang === "en" ? "Document not found" : "Документ не знайдено"}</h1><p><a href="#/sample/code-to-docs">← {lang === "en" ? "Back" : "Назад"}</a></p></div></main>;
@@ -105,7 +111,7 @@ function EdgeVedaDocPage({ lang, slug }) {
     <main>
       <div className="container page-header">
         <h1>{title}</h1>
-        <p className="lede" style={{ color: "var(--color-text-muted)" }}>{en ? "Source language: Ukrainian (UA docs)." : "Джерело контенту: українська документація (UA)."}</p>
+        <p className="lede" style={{ color: "var(--color-text-muted)" }}>{en ? "Source: English documentation (EN docs)." : "Джерело контенту: українська документація (UA)."}</p>
       </div>
       <section className="container" style={{ paddingBottom: 80 }}>
         <div className="detail-layout">
