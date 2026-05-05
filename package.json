@@ -1,0 +1,41 @@
+{
+  "name": "mikhailotroynin-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prerender": "react-snap"
+  },
+  "devDependencies": {
+    "react-snap": "^1.23.0"
+  },
+  "reactSnap": {
+    "source": ".",
+    "destination": ".",
+    "publicPath": "/MikhailoTroynin/",
+    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "puppeteerExecutablePath": "",
+    "inlineCss": false,
+    "minifyHtml": {
+      "collapseWhitespace": false,
+      "removeComments": false
+    },
+    "include": [
+      "/",
+      "/#/work",
+      "/#/workflow",
+      "/#/about",
+      "/#/contact",
+      "/#/api-docs",
+      "/#/api-doc/init",
+      "/#/api-doc/generate",
+      "/#/api-doc/generate-stream",
+      "/#/api-doc/embed",
+      "/#/ev-doc/gs-overview",
+      "/#/ev-doc/gs-installation",
+      "/#/ev-doc/c-what-is-edge-veda",
+      "/#/ev-doc/c-architecture"
+    ],
+    "waitForElement": "#root > *",
+    "fixInsecureRequests": false
+  }
+}
