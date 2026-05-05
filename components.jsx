@@ -1224,6 +1224,10 @@ function AboutPage({ lang }) {
                 <span className="label">GITHUB</span>
                 <span>MikahiloTroynin ↗</span>
               </a>
+              <a href="https://www.linkedin.com/in/%D0%BC%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE-%D1%82%D1%80%D0%BE%D0%B9%D0%BD%D1%96%D0%BD-21647625a" target="_blank" rel="noreferrer">
+                <span className="label">LINKEDIN</span>
+                <span>Mykhailo Troynin ↗</span>
+              </a>
               <a href="#" onClick={(e) => e.preventDefault()}>
                 <span className="label">CV</span>
                 <span>{lang === "en" ? "Download PDF" : "Завантажити PDF"} ↓</span>
