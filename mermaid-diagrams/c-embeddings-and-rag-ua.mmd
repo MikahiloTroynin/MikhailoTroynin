@@ -1,0 +1,16 @@
+flowchart LR
+    Document[Локальний документ]
+    Chunk[Розбити на частини]
+    EmbedDoc[Створити embeddings]
+    Index[VectorIndex]
+    Question[Запитання користувача]
+    EmbedQuestion[Створити embedding запитання]
+    Search[Пошук схожих частин]
+    Prompt[Побудувати контекстний prompt]
+    Generate[Згенерувати відповідь]
+    Answer[Відповідь з джерелами]
+
+    Document --> Chunk --> EmbedDoc --> Index
+    Question --> EmbedQuestion --> Search
+    Index --> Search
+    Search --> Prompt --> Generate --> Answer

@@ -1,0 +1,13 @@
+flowchart LR
+    Q[Запитання користувача]
+    EmbedQ[Створити embedding запитання]
+    Search[Пошук у VectorIndex]
+    Context[Побудувати контекст]
+    Generate[Згенерувати відповідь]
+    Answer[Відповідь з джерелами]
+
+    Q --> EmbedQ
+    EmbedQ --> Search
+    Search --> Context
+    Context --> Generate
+    Generate --> Answer

@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User as Користувач
+    participant App as Застосунок
+    participant Model as Модель
+    participant Tool as Локальний інструмент
+
+    User->>App: Запит на дію
+    App->>Model: Надіслати prompt + визначення інструментів
+    Model-->>App: Виклик інструменту з аргументами
+    App->>App: Валідація аргументів
+    App->>Tool: Виконати локальну функцію
+    Tool-->>App: Результат інструменту
+    App->>Model: Надіслати результат інструменту
+    Model-->>App: Фінальна відповідь
+    App-->>User: Показати результат

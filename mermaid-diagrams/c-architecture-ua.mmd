@@ -1,0 +1,22 @@
+flowchart TD
+    App[Flutter застосунок]
+    Feature[Код функції застосунку]
+    SDK[Edge Veda Dart SDK]
+    Sessions[Сесії та пайплайни]
+    Workers[Постійні worker isolates]
+    Runtime["Планувальник, політики, телеметрія"]
+    FFI[FFI bindings]
+    Native[Нативні inference engines]
+    Device["ЦП / ГП / пам'ять / теплові сигнали пристрою"]
+
+    App --> Feature
+    Feature --> SDK
+    SDK --> Sessions
+    SDK --> Workers
+    SDK --> Runtime
+    Sessions --> Workers
+    Workers --> FFI
+    FFI --> Native
+    Runtime --> Workers
+    Runtime --> Device
+    Native --> Device
