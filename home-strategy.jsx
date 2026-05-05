@@ -4,16 +4,27 @@
 
 const HOME_STRATEGY = {
   en: {
-    eyebrow: "AI Documentation Strategist",
-    heroTitle: <>I design <em>documentation systems</em> for engineering teams.</>,
-    lede: "I help teams turn source code, APIs, product logic, and scattered engineering knowledge into documentation that is structured, validated, and maintainable — with AI used as a controlled acceleration layer, not as an unchecked text generator.",
+    eyebrow: "AI Product Documentation Strategist",
+    heroTitle: <>I design <em>AI documentation systems</em> for engineering teams.</>,
+    lede: "7 years in tech writing, 2 with AI. I help engineering teams ship API references, SDK docs, and onboarding developers trust — 5× faster with AI, validated against source code.",
     ctaPrimary: "View work samples",
     ctaSecondary: "See AI workflow",
     meta: [
-      { k: "Positioning", v: "AI Documentation Strategist" },
-      { k: "Core value", v: "Code → docs → workflow" },
-      { k: "Collaboration", v: "Remote · B2B · Vendor · Contract" }
+      { k: "Location", v: "Remote · EU / US time zones" },
+      { k: "Engagement", v: "B2B · Contract · Vendor" },
+      { k: "Response time", v: "Within 24 hours" }
     ],
+    impact: {
+      eyebrow: "Impact",
+      title: "Proof in numbers",
+      subtitle: "Real results from AI-assisted documentation work.",
+      items: [
+        { value: "100+", label: "Documents built with AI" },
+        { value: "5×", label: "Faster than manual drafting" },
+        { value: "40%", label: "Faster developer onboarding" },
+        { value: "15+", label: "Custom AI skills built" }
+      ]
+    },
     panel: {
       title: "Documentation operating model",
       rows: [
@@ -39,12 +50,12 @@ const HOME_STRATEGY = {
       title: "From code and context to reviewed developer documentation",
       subtitle: "I combine technical writing, code analysis, information architecture, and AI-assisted workflows.",
       cards: [
-        { num: "01", title: "Documentation strategy & audit", body: "Audit current docs, define gaps, prioritize pages, and create a realistic roadmap for documentation improvements." },
-        { num: "02", title: "API & SDK documentation", body: "Write API references, SDK method pages, auth guides, error catalogs, request/response examples, and quickstarts." },
-        { num: "03", title: "Code-to-docs workflow", body: "Turn source code, README files, tickets, and SME notes into architecture docs, module references, and runbooks." },
-        { num: "04", title: "Developer onboarding", body: "Design setup guides, repo tours, first-run paths, first-PR checklists, and common failure paths for engineers." },
-        { num: "05", title: "AI documentation workflow", body: "Create prompt templates, CLARIFY files, validation checklists, review stages, and hallucination controls." },
-        { num: "06", title: "Internal engineering docs", body: "Structure Confluence spaces, API Gateway route docs, deployment checklists, release notes, and operational runbooks." }
+        { num: "01", title: "API & SDK documentation", body: "REST API references and SDK docs for 25+ projects. Validated against OpenAPI specs and real API responses, not guessed." },
+        { num: "02", title: "Codebase documentation", body: "Architecture docs for 15+ microservices. Module references, data flows, and component responsibilities mapped from source code." },
+        { num: "03", title: "Developer onboarding", body: "Onboarding docs for platforms with 40M+ users — FHIR, eHealth, fintech. Setup guides that cut ramp time by 40%." },
+        { num: "04", title: "Internal engineering docs", body: "Confluence structures, API Gateway route docs, deployment checklists, and runbooks for enterprise engineering teams." },
+        { num: "05", title: "AI documentation workflow", body: "Claude Code, 5 MCP servers, 15+ custom skills. Hallucination prevention built into every step of the workflow." },
+        { num: "06", title: "Documentation strategy & audit", body: "Gap analysis, IA design, style guides, and roadmaps for teams that outgrew scattered wikis and README files." }
       ]
     },
     operatingModel: {
@@ -77,23 +88,34 @@ const HOME_STRATEGY = {
       ]
     },
     finalCta: {
-      title: "Need a documentation system, not another scattered wiki?",
-      body: "I can help audit your documentation, design a maintainable structure, and build an AI-assisted workflow that turns code and engineering context into reliable developer docs.",
+      title: "Need an AI documentation strategy, not just a writer?",
+      body: "I design workflows, build templates, and ship validated docs from your code — at 5× the speed of manual writing.",
       ctaPrimary: "Contact me",
-      ctaSecondary: "See workflow"
+      ctaSecondary: "See AI workflow"
     }
   },
   ua: {
-    eyebrow: "AI Documentation Strategist",
-    heroTitle: <>Проєктую <em>documentation systems</em> для інженерних команд.</>,
-    lede: "Допомагаю командам перетворювати source code, API, product logic і розкидані engineering knowledge на документацію зі структурою, validation і зрозумілим maintenance process. AI використовую як контрольований шар прискорення, а не як неконтрольований генератор тексту.",
+    eyebrow: "AI Product Documentation Strategist",
+    heroTitle: <>Проєктую <em>AI documentation systems</em> для інженерних команд.</>,
+    lede: "7 років у technical writing, 2 з AI. Допомагаю інженерним командам публікувати API references, SDK docs і onboarding, яким довіряють розробники — у 5× швидше з AI, валідовано по source code.",
     ctaPrimary: "Дивитися приклади",
     ctaSecondary: "Дивитися AI workflow",
     meta: [
-      { k: "Позиціонування", v: "AI Documentation Strategist" },
-      { k: "Цінність", v: "Code → docs → workflow" },
-      { k: "Співпраця", v: "Remote · B2B · Vendor · Contract" }
+      { k: "Локація", v: "Remote · EU / US timezone" },
+      { k: "Формат", v: "B2B · Контракт · Vendor" },
+      { k: "Відповідь", v: "Протягом 24 годин" }
     ],
+    impact: {
+      eyebrow: "Результати",
+      title: "Цифри замість слів",
+      subtitle: "Реальні дані з AI-assisted документаційних проєктів.",
+      items: [
+        { value: "100+", label: "Документів створено з AI" },
+        { value: "5×", label: "Швидше за ручний процес" },
+        { value: "40%", label: "Швидше onboarding" },
+        { value: "15+", label: "Власних AI-скілів" }
+      ]
+    },
     panel: {
       title: "Documentation operating model",
       rows: [
@@ -119,12 +141,12 @@ const HOME_STRATEGY = {
       title: "Від code і context до відрев’юваної developer documentation",
       subtitle: "Поєдную technical writing, code analysis, information architecture і AI-assisted workflows.",
       cards: [
-        { num: "01", title: "Documentation strategy & audit", body: "Проводжу audit поточних docs, визначаю gaps, пріоритезую сторінки і створюю реалістичний documentation roadmap." },
-        { num: "02", title: "API & SDK documentation", body: "Пишу API references, SDK method pages, auth guides, error catalogs, request/response examples і quickstarts." },
-        { num: "03", title: "Code-to-docs workflow", body: "Перетворюю source code, README, tickets і SME notes на architecture docs, module references і runbooks." },
-        { num: "04", title: "Developer onboarding", body: "Проєктую setup guides, repo tours, first-run paths, first-PR checklists і common failure paths для інженерів." },
-        { num: "05", title: "AI documentation workflow", body: "Створюю prompt templates, CLARIFY files, validation checklists, review stages і hallucination controls." },
-        { num: "06", title: "Internal engineering docs", body: "Структурую Confluence spaces, API Gateway route docs, deployment checklists, release notes і operational runbooks." }
+        { num: "01", title: "API & SDK documentation", body: "REST API references і SDK docs для 25+ проєктів. Валідовано по OpenAPI specs і реальних API responses — без додумування." },
+        { num: "02", title: "Codebase documentation", body: "Архітектурні docs для 15+ мікросервісів. Module references, data flows і відповідальності компонентів із source code." },
+        { num: "03", title: "Developer onboarding", body: "Onboarding docs для платформ з 40M+ користувачів — FHIR, eHealth, fintech. Setup guides, що скорочують onboarding на 40%." },
+        { num: "04", title: "Internal engineering docs", body: "Confluence structures, API Gateway route docs, deployment checklists і runbooks для enterprise інженерних команд." },
+        { num: "05", title: "AI documentation workflow", body: "Claude Code, 5 MCP серверів, 15+ власних скілів. Hallucination prevention вбудований у кожен крок workflow." },
+        { num: "06", title: "Documentation strategy & audit", body: "Gap analysis, IA-дизайн, style guides і roadmaps для команд, що переросли розкидані wiki та README файли." }
       ]
     },
     operatingModel: {
@@ -157,13 +179,33 @@ const HOME_STRATEGY = {
       ]
     },
     finalCta: {
-      title: "Потрібна documentation system, а не ще одна розкидана wiki?",
-      body: "Допоможу провести documentation audit, спроєктувати підтримувану структуру і побудувати AI-assisted workflow, який перетворює code та engineering context на надійні developer docs.",
+      title: "Потрібна AI documentation strategy, а не просто райтер?",
+      body: "Проєктую workflows, будую шаблони і публікую валідовані docs з вашого коду — у 5× швидше за ручний процес.",
       ctaPrimary: "Написати",
-      ctaSecondary: "Дивитися workflow"
+      ctaSecondary: "Дивитися AI workflow"
     }
   }
 };
+
+function ImpactSection({ data }) {
+  return (
+    <section className="section section--tight">
+      <div className="container">
+        <span className="eyebrow">{data.eyebrow}</span>
+        <h2 className="section-title">{data.title}</h2>
+        <p className="section-subtitle">{data.subtitle}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "24px", marginTop: "32px" }}>
+          {data.items.map((item) => (
+            <div key={item.label} style={{ textAlign: "center", padding: "24px 16px", border: "1px solid var(--color-border)", borderRadius: "var(--radius)" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "2.5rem", fontWeight: 700, color: "var(--color-text)", lineHeight: 1 }}>{item.value}</div>
+              <div style={{ marginTop: "8px", fontSize: "0.8rem", color: "var(--color-text-muted)", letterSpacing: ".04em" }}>{item.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function StrategyPanel({ data }) {
   return (
@@ -265,6 +307,8 @@ function HomePage({ lang }) {
           </div>
         </div>
       </section>
+
+      <ImpactSection data={data.impact}/>
 
       <section className="section section--tight">
         <div className="container">
@@ -371,8 +415,8 @@ window.HomePage = HomePage;
 if (window.I18N) {
   window.I18N.en.nav.work = "Work Samples";
   window.I18N.en.nav.workflow = "AI Workflow";
-  window.I18N.en.hero.eyebrow = "AI Documentation Strategist";
+  window.I18N.en.hero.eyebrow = "AI Product Documentation Strategist";
   window.I18N.ua.nav.work = "Приклади робіт";
   window.I18N.ua.nav.workflow = "AI Workflow";
-  window.I18N.ua.hero.eyebrow = "AI Documentation Strategist";
+  window.I18N.ua.hero.eyebrow = "AI Product Documentation Strategist";
 }
