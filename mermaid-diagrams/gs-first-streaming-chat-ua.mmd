@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant UI as Chat UI
+    participant SDK as EdgeVeda
+    participant Session as ChatSession
+    participant Model as Локальна модель
+
+    UI->>SDK: init(EdgeVedaConfig)
+    SDK->>Model: завантажити модель один раз
+    UI->>Session: створити ChatSession(edgeVeda)
+    UI->>Session: sendStream(повідомлення користувача)
+    Session->>Model: форматований chat prompt
+    Model-->>Session: фрагменти токенів
+    Session-->>UI: потокові фрагменти
+    UI->>Session: sendStream(наступне повідомлення)
+    Session->>Model: prompt з попереднім контекстом

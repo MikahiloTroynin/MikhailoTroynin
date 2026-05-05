@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant UI as Flutter екран
+    participant MM as ModelManager
+    participant SDK as EdgeVeda
+    participant RT as Нативний runtime
+
+    UI->>MM: downloadModel(ModelRegistry.llama32_1b)
+    MM-->>UI: modelPath
+    UI->>SDK: init(EdgeVedaConfig)
+    SDK->>RT: завантажити модель
+    UI->>SDK: generateStream(prompt)
+    SDK-->>UI: фрагменти токенів
+    UI->>SDK: dispose()

@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant App as Flutter застосунок
+    participant SDK as Edge Veda SDK
+    participant Worker as Streaming worker
+    participant Native as Нативний текстовий engine
+    participant Runtime as Планувальник / політика
+
+    App->>SDK: generate(prompt) або generateStream(prompt)
+    SDK->>Runtime: перевірити поточний бюджет і тиск
+    Runtime-->>SDK: дозволити, знизити, призупинити або відхилити
+    SDK->>Worker: надіслати запит на генерацію
+    Worker->>Native: запустити inference
+    Native-->>Worker: токен або фінальна відповідь
+    Worker-->>SDK: фрагмент потоку або результат
+    SDK-->>App: оновити UI

@@ -1,0 +1,11 @@
+flowchart TD
+    Camera[Кадри камери]
+    Queue[FrameQueue]
+    Policy[Політика runtime]
+    Vision[Vision worker]
+    Result[Описи / виявлення]
+
+    Camera --> Queue
+    Policy --> Queue
+    Queue --> Vision
+    Vision --> Result

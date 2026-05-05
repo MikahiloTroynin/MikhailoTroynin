@@ -1,0 +1,12 @@
+flowchart TD
+    Prompt[Prompt + схема]
+    Grammar[Граматичні обмеження]
+    Model[Локальна модель]
+    Raw[Сирий вивід]
+    Recover[Відновлення JSON]
+    Validate[Валідація схеми]
+    App[Код застосунку]
+
+    Prompt --> Grammar --> Model --> Raw --> Recover --> Validate
+    Validate -->|коректно| App
+    Validate -->|некоректно| Error[Повернути структуровану помилку]
