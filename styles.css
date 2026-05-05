@@ -1468,6 +1468,34 @@ code, pre, kbd, samp {
 .experience-item p { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; }
 @media (max-width: 640px) { .experience-item { grid-template-columns: 1fr; gap: 6px; } }
 
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.metric-k {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+}
+.metric-v {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+}
+
 /* ---------- Contact ---------- */
 .contact-grid {
   display: grid;

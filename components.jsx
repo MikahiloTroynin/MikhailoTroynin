@@ -1209,19 +1209,20 @@ function AboutPage({ lang }) {
           <aside className="profile-card">
             <div className="avatar"></div>
             <h2>Mykhailo Troynin</h2>
-            <p className="role">{lang === "en" ? "AI Technical Writer" : "AI Technical Writer"}</p>
+            <p className="role">{t.sidebarRole}</p>
+            {t.sidebarLocation && <p style={{ fontSize: 13, color: "var(--color-text-faint)", marginTop: 4 }}>{t.sidebarLocation}</p>}
             <div className="links">
-              <a href="#" onClick={(e) => e.preventDefault()}>
+              <a href={"mailto:" + t.sidebarEmail}>
                 <span className="label">EMAIL</span>
-                <span>hello@portfolio.dev</span>
+                <span>{t.sidebarEmail}</span>
               </a>
-              <a href="#" onClick={(e) => e.preventDefault()}>
-                <span className="label">LINKEDIN</span>
-                <span>/in/troynin ↗</span>
+              <a href="https://t.me/Troynin_M" target="_blank" rel="noreferrer">
+                <span className="label">TELEGRAM</span>
+                <span>@Troynin_M ↗</span>
               </a>
-              <a href="#" onClick={(e) => e.preventDefault()}>
+              <a href="https://github.com/MikahiloTroynin" target="_blank" rel="noreferrer">
                 <span className="label">GITHUB</span>
-                <span>@troynin ↗</span>
+                <span>MikahiloTroynin ↗</span>
               </a>
               <a href="#" onClick={(e) => e.preventDefault()}>
                 <span className="label">CV</span>
@@ -1232,6 +1233,20 @@ function AboutPage({ lang }) {
           <article className="prose">
             <p style={{ fontSize: "1.15rem", color: "var(--color-text)", lineHeight: 1.55 }}>{t.bio}</p>
             <p>{t.bio2}</p>
+
+            {t.metrics && t.metrics.length > 0 && (
+              <>
+                <h2>{t.metricsTitle}</h2>
+                <div className="metrics-grid">
+                  {t.metrics.map((m, i) =>
+                    <div key={i} className="metric-item">
+                      <span className="metric-k">{m.k}</span>
+                      <span className="metric-v">{m.v}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             <h2>{t.coreSkillsTitle}</h2>
             <div className="skill-chip-grid">
@@ -1256,6 +1271,20 @@ function AboutPage({ lang }) {
             <div className="skill-chip-grid">
               {t.engagement.map((s) => <span key={s} className="skill-chip">{s}</span>)}
             </div>
+
+            {t.languages && t.languages.length > 0 && (
+              <>
+                <h2>{t.languagesTitle}</h2>
+                <div className="experience-list">
+                  {t.languages.map((l, i) =>
+                    <div key={i} className="experience-item">
+                      <div className="period">{l.lang}</div>
+                      <div><div className="role">{l.level}</div></div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </article>
         </div>
       </section>
