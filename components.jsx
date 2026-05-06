@@ -98,12 +98,12 @@ function Footer({ t }) {
             M. Troynin — AI Technical Writer
           </div>
           <div className="footer-meta" style={{ marginTop: 4 }}>
-            React + marked.js · no-build static site
+            React + marked.js
           </div>
         </div>
         <div className="footer-meta" style={{ display: "flex", gap: 16 }}>
-          <a href="#/about">About</a>
-          <a href="#/contact">Contact</a>
+          <a href="#/about">{t.nav.about}</a>
+          <a href="#/contact">{t.nav.contact}</a>
           <a href="https://www.linkedin.com/in/%D0%BC%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE-%D1%82%D1%80%D0%BE%D0%B9%D0%BD%D1%96%D0%BD-21647625a" target="_blank" rel="noreferrer">LinkedIn ↗</a>
         </div>
       </div>
@@ -405,7 +405,7 @@ function WorkPage({ lang }) {
   const list = useMemo(() => {
     const idx = t.filters.indexOf(filter);
     if (idx <= 0) return window.SAMPLES;
-    const cat = ["", "API Docs", "Code-to-Docs", "Developer Onboarding", "AI Workflow", "Internal Docs"][idx];
+    const cat = ["", "API Docs", "Code-to-Docs", "AI Workflow"][idx];
     return window.SAMPLES.filter((s) => s.category === cat);
   }, [filter, lang]);
 
@@ -421,7 +421,7 @@ function WorkPage({ lang }) {
           role="tab"
           aria-selected={filter === f}
           className={"filter-pill" + (filter === f ? " is-active" : "")}
-          onClick={() => setFilter(f)}>
+          onClick={() => { if (f === "AI Workflow") { navigate("workflow"); } else { setFilter(f); } }}>
               {f}
             </button>
           )}
