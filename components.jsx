@@ -98,14 +98,13 @@ function Footer({ t }) {
             M. Troynin — AI Technical Writer
           </div>
           <div className="footer-meta" style={{ marginTop: 4 }}>
-            Built like docs-as-code · Markdown + Jekyll + GitHub Pages
+            React + marked.js · no-build static site
           </div>
         </div>
         <div className="footer-meta" style={{ display: "flex", gap: 16 }}>
           <a href="#/about">About</a>
           <a href="#/contact">Contact</a>
-          <a href="https://github.com" onClick={(e) => e.preventDefault()}>GitHub ↗</a>
-          <a href="https://linkedin.com" onClick={(e) => e.preventDefault()}>LinkedIn ↗</a>
+          <a href="https://www.linkedin.com/in/%D0%BC%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE-%D1%82%D1%80%D0%BE%D0%B9%D0%BD%D1%96%D0%BD-21647625a" target="_blank" rel="noreferrer">LinkedIn ↗</a>
         </div>
       </div>
     </footer>);
@@ -1220,10 +1219,6 @@ function AboutPage({ lang }) {
                 <span className="label">TELEGRAM</span>
                 <span>@Troynin_M ↗</span>
               </a>
-              <a href="https://github.com/MikahiloTroynin" target="_blank" rel="noreferrer">
-                <span className="label">GITHUB</span>
-                <span>MikahiloTroynin ↗</span>
-              </a>
               <a href="https://www.linkedin.com/in/%D0%BC%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE-%D1%82%D1%80%D0%BE%D0%B9%D0%BD%D1%96%D0%BD-21647625a" target="_blank" rel="noreferrer">
                 <span className="label">LINKEDIN</span>
                 <span>Mykhailo Troynin ↗</span>
@@ -1350,17 +1345,13 @@ function ContactPage({ lang }) {
           <div className="contact-direct">
             <h3>{t.directTitle}</h3>
             <div className="channels">
-              <a className="channel" href="mailto:hello@portfolio.dev">
+              <a className="channel" href="mailto:mihajlotrojnin@gmail.com">
                 <span className="label">EMAIL</span>
-                <span>hello@portfolio.dev</span>
+                <span>mihajlotrojnin@gmail.com</span>
               </a>
-              <a className="channel" href="#" onClick={(e) => e.preventDefault()}>
+              <a className="channel" href="https://www.linkedin.com/in/%D0%BC%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE-%D1%82%D1%80%D0%BE%D0%B9%D0%BD%D1%96%D0%BD-21647625a" target="_blank" rel="noreferrer">
                 <span className="label">LINKEDIN</span>
-                <span>/in/troynin ↗</span>
-              </a>
-              <a className="channel" href="#" onClick={(e) => e.preventDefault()}>
-                <span className="label">GITHUB</span>
-                <span>@troynin ↗</span>
+                <span>Mykhailo Troynin ↗</span>
               </a>
               <a className="channel" href={lang === "ua" ? "CV_M_Troynin_ua.pdf" : "CV_M_Troynin_en.pdf"} download>
                 <span className="label">CV</span>
