@@ -38,7 +38,7 @@ window.I18N = {
     workPage: {
       title: 'Work samples',
       subtitle: 'Documentation examples.',
-      filters: ['All', 'API Docs', 'Code-to-Docs', 'Developer Onboarding', 'AI Workflow', 'Internal Docs'],
+      filters: ['All', 'API Docs', 'Code-to-Docs', 'AI Workflow'],
       input: 'Input', output: 'Output', view: 'View case', github: 'Open on GitHub'
     },
 
@@ -195,7 +195,7 @@ window.I18N = {
     workPage: {
       title: 'Приклади робіт',
       subtitle: 'Приклади технічної документації.',
-      filters: ['Усі', 'API Docs', 'Code-to-Docs', 'Developer Onboarding', 'AI Workflow', 'Internal Docs'],
+      filters: ['Усі', 'API Docs', 'Code-to-Docs', 'AI Workflow'],
       input: 'Вхід', output: 'Вихід', view: 'Дивитися кейс', github: 'Відкрити на GitHub'
     },
 
