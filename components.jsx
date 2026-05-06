@@ -71,7 +71,7 @@ function Header({ t, lang, setLang, page }) {
             <button className={lang === "en" ? "is-active" : ""} onClick={() => setLang("en")}>EN</button>
             <button className={lang === "ua" ? "is-active" : ""} onClick={() => setLang("ua")}>UA</button>
           </div>
-          <a className="button button-secondary button-sm" href="#/contact" style={{ marginLeft: 4 }}>
+          <a className="button button-secondary button-sm" href={lang === "ua" ? "CV_M_Troynin_ua.pdf" : "CV_M_Troynin_en.pdf"} download style={{ marginLeft: 4 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             {t.nav.cv}
           </a>
@@ -388,7 +388,7 @@ function HomePage({ lang }) {
             </div>
             <div className="ctas">
               <a className="button button-primary" href="#/contact">{t.finalCta.ctaPrimary}</a>
-              <a className="button button-secondary" href="#" onClick={(e) => e.preventDefault()}>{t.finalCta.ctaSecondary}</a>
+              <a className="button button-secondary" href={lang === "ua" ? "CV_M_Troynin_ua.pdf" : "CV_M_Troynin_en.pdf"} download>{t.finalCta.ctaSecondary}</a>
             </div>
           </div>
         </div>
@@ -1207,7 +1207,7 @@ function AboutPage({ lang }) {
       <section className="container" style={{ paddingBottom: 80 }}>
         <div className="about-grid">
           <aside className="profile-card">
-            <div className="avatar"></div>
+            <div className="avatar"><img src="My photo.jpg" alt="Mykhailo Troynin" /></div>
             <h2>Mykhailo Troynin</h2>
             <p className="role">{t.sidebarRole}</p>
             {t.sidebarLocation && <p style={{ fontSize: 13, color: "var(--color-text-faint)", marginTop: 4 }}>{t.sidebarLocation}</p>}
@@ -1228,7 +1228,7 @@ function AboutPage({ lang }) {
                 <span className="label">LINKEDIN</span>
                 <span>Mykhailo Troynin ↗</span>
               </a>
-              <a href="#" onClick={(e) => e.preventDefault()}>
+              <a href={lang === "ua" ? "CV_M_Troynin_ua.pdf" : "CV_M_Troynin_en.pdf"} download>
                 <span className="label">CV</span>
                 <span>{lang === "en" ? "Download PDF" : "Завантажити PDF"} ↓</span>
               </a>
@@ -1362,7 +1362,7 @@ function ContactPage({ lang }) {
                 <span className="label">GITHUB</span>
                 <span>@troynin ↗</span>
               </a>
-              <a className="channel" href="#" onClick={(e) => e.preventDefault()}>
+              <a className="channel" href={lang === "ua" ? "CV_M_Troynin_ua.pdf" : "CV_M_Troynin_en.pdf"} download>
                 <span className="label">CV</span>
                 <span>{lang === "en" ? "Download PDF" : "Завантажити PDF"} ↓</span>
               </a>
