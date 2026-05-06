@@ -675,7 +675,7 @@ code, pre, kbd, samp {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
   gap: 56px;
-  align-items: center;
+  align-items: start;
 }
 @media (max-width: 980px) {
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }

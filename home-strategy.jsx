@@ -302,7 +302,7 @@ function HomePage({ lang }) {
               ))}
             </div>
           </div>
-          <div className="rise" style={{ animationDelay: "120ms" }}>
+          <div className="rise" style={{ animationDelay: "120ms", paddingTop: "38px" }}>
             <StrategyPanel data={data.panel}/>
           </div>
         </div>
