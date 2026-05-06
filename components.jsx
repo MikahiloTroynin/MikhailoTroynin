@@ -1294,31 +1294,70 @@ function AboutPage({ lang }) {
 /* ---------- Contact ---------- */
 function ContactPage({ lang }) {
   const t = window.I18N[lang].contactPage;
-  const recipient = "mihajlotrojnin@gmail.com";
+  const WEB3FORMS_ACCESS_KEY = "fefc610c-5801-4c61-ac2f-03cdbd175dd6";
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [company, setCompany] = React.useState("");
   const [topic, setTopic] = React.useState(t.topics[0]);
   const [message, setMessage] = React.useState("");
+  const [status, setStatus] = React.useState("idle"); // idle | sending | success | error
+  const [statusMsg, setStatusMsg] = React.useState("");
 
-  const handleSubmit = (e) => {
+  const STATUS_TEXT = lang === "en"
+    ? {
+        sending: "Sending…",
+        success: "Thanks! Your message was sent. I'll respond within 24 hours on weekdays.",
+        error: "Sending failed. Please try again or email mihajlotrojnin@gmail.com directly.",
+      }
+    : {
+        sending: "Надсилаю…",
+        success: "Дякую! Повідомлення надіслано. Відповім протягом 24 годин у робочі дні.",
+        error: "Не вдалося надіслати. Спробуйте ще раз або напишіть на mihajlotrojnin@gmail.com.",
+      };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (status === "sending") return;
+
     const subjectPrefix = lang === "en" ? "Portfolio contact" : "Контакт з портфоліо";
     const subject = `[${subjectPrefix}] ${topic}${name ? " — " + name : ""}`;
-    const L = lang === "en"
-      ? { name: "Name", email: "Email", company: "Company", topic: "Topic", message: "Message" }
-      : { name: "Ім'я", email: "Email", company: "Компанія", topic: "Тема", message: "Повідомлення" };
-    const bodyLines = [
-      `${L.name}: ${name}`,
-      `${L.email}: ${email}`,
-      `${L.company}: ${company}`,
-      `${L.topic}: ${topic}`,
-      "",
-      `${L.message}:`,
+
+    const payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject,
+      from_name: name || "Portfolio visitor",
+      name,
+      email,
+      company,
+      topic,
       message,
-    ];
-    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-    window.location.href = mailto;
+      language: lang,
+      page_url: typeof window !== "undefined" ? window.location.href : "",
+    };
+
+    setStatus("sending");
+    setStatusMsg(STATUS_TEXT.sending);
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setStatus("success");
+        setStatusMsg(STATUS_TEXT.success);
+        setName(""); setEmail(""); setCompany(""); setMessage("");
+        setTopic(t.topics[0]);
+      } else {
+        setStatus("error");
+        setStatusMsg((data && data.message) ? data.message : STATUS_TEXT.error);
+      }
+    } catch (err) {
+      setStatus("error");
+      setStatusMsg(STATUS_TEXT.error);
+    }
   };
 
   return (
@@ -1362,11 +1401,29 @@ function ContactPage({ lang }) {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-text-faint)" }}>
                 {lang === "en" ? "Or just email — same thing." : "Або просто email — те саме."}
               </span>
-              <button className="button button-primary" type="submit">
-                {t.labels.send}
+              <button className="button button-primary" type="submit" disabled={status === "sending"}>
+                {status === "sending" ? STATUS_TEXT.sending : t.labels.send}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
               </button>
             </div>
+            {status !== "idle" && status !== "sending" && (
+              <div
+                role="status"
+                aria-live="polite"
+                style={{
+                  marginTop: 12,
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 13,
+                  border: "1px solid",
+                  borderColor: status === "success" ? "rgba(46,160,67,0.4)" : "rgba(248,81,73,0.4)",
+                  background: status === "success" ? "rgba(46,160,67,0.08)" : "rgba(248,81,73,0.08)",
+                  color: status === "success" ? "#2ea043" : "#f85149",
+                }}>
+                {statusMsg}
+              </div>
+            )}
           </form>
 
           <div className="contact-direct">
