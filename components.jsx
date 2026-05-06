@@ -1294,6 +1294,33 @@ function AboutPage({ lang }) {
 /* ---------- Contact ---------- */
 function ContactPage({ lang }) {
   const t = window.I18N[lang].contactPage;
+  const recipient = "mihajlotrojnin@gmail.com";
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [company, setCompany] = React.useState("");
+  const [topic, setTopic] = React.useState(t.topics[0]);
+  const [message, setMessage] = React.useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const subjectPrefix = lang === "en" ? "Portfolio contact" : "Контакт з портфоліо";
+    const subject = `[${subjectPrefix}] ${topic}${name ? " — " + name : ""}`;
+    const L = lang === "en"
+      ? { name: "Name", email: "Email", company: "Company", topic: "Topic", message: "Message" }
+      : { name: "Ім'я", email: "Email", company: "Компанія", topic: "Тема", message: "Повідомлення" };
+    const bodyLines = [
+      `${L.name}: ${name}`,
+      `${L.email}: ${email}`,
+      `${L.company}: ${company}`,
+      `${L.topic}: ${topic}`,
+      "",
+      `${L.message}:`,
+      message,
+    ];
+    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    window.location.href = mailto;
+  };
+
   return (
     <main>
       <div className="container page-header">
@@ -1303,33 +1330,33 @@ function ContactPage({ lang }) {
       </div>
       <section className="container" style={{ paddingBottom: 80 }}>
         <div className="contact-grid">
-          <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+          <form className="contact-form" onSubmit={handleSubmit}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-text-faint)", letterSpacing: ".06em", textTransform: "uppercase" }}>
               {t.formTitle}
             </div>
             <div className="field-row">
               <div className="field">
                 <label>{t.labels.name}</label>
-                <input type="text" placeholder="Jane Engineer" />
+                <input type="text" placeholder="Jane Engineer" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="field">
                 <label>{t.labels.email}</label>
-                <input type="email" placeholder="you@team.dev" />
+                <input type="email" placeholder="you@team.dev" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
             </div>
             <div className="field">
               <label>{t.labels.company}</label>
-              <input type="text" placeholder="Acme Inc." />
+              <input type="text" placeholder="Acme Inc." value={company} onChange={(e) => setCompany(e.target.value)} />
             </div>
             <div className="field">
               <label>{t.labels.topic}</label>
-              <select>
+              <select value={topic} onChange={(e) => setTopic(e.target.value)}>
                 {t.topics.map((o) => <option key={o}>{o}</option>)}
               </select>
             </div>
             <div className="field">
               <label>{t.labels.message}</label>
-              <textarea placeholder={lang === "en" ? "What needs documenting? Stack, repo, timeline." : "Що треба документувати? Стек, репо, таймлайн."}></textarea>
+              <textarea placeholder={lang === "en" ? "What needs documenting? Stack, repo, timeline." : "Що треба документувати? Стек, репо, таймлайн."} value={message} onChange={(e) => setMessage(e.target.value)} required></textarea>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-text-faint)" }}>
