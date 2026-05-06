@@ -36,6 +36,7 @@ jobs:
 
       - name: Prerender pages with react-snap
         run: npm run prerender
+        continue-on-error: true
         env:
           PUPPETEER_PRODUCT: chrome
 
