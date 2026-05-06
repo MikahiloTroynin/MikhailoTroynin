@@ -1294,32 +1294,55 @@ function AboutPage({ lang }) {
 /* ---------- Contact ---------- */
 function ContactPage({ lang }) {
   const t = window.I18N[lang].contactPage;
-  const recipient = "mihajlotrojnin@gmail.com";
+  const WEB3FORMS_KEY = "fefc610c-5801-4c61-ac2f-03cdbd175dd6";
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [company, setCompany] = React.useState("");
   const [topic, setTopic] = React.useState(t.topics[0]);
   const [message, setMessage] = React.useState("");
+  const [status, setStatus] = React.useState("idle"); // idle | sending | success | error
+  const [errorMsg, setErrorMsg] = React.useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus("sending");
+    setErrorMsg("");
     const subjectPrefix = lang === "en" ? "Portfolio contact" : "Контакт з портфоліо";
-    const subject = `[${subjectPrefix}] ${topic}${name ? " — " + name : ""}`;
-    const L = lang === "en"
-      ? { name: "Name", email: "Email", company: "Company", topic: "Topic", message: "Message" }
-      : { name: "Ім'я", email: "Email", company: "Компанія", topic: "Тема", message: "Повідомлення" };
-    const bodyLines = [
-      `${L.name}: ${name}`,
-      `${L.email}: ${email}`,
-      `${L.company}: ${company}`,
-      `${L.topic}: ${topic}`,
-      "",
-      `${L.message}:`,
+    const payload = {
+      access_key: WEB3FORMS_KEY,
+      subject: `[${subjectPrefix}] ${topic}${name ? " — " + name : ""}`,
+      from_name: name || (lang === "en" ? "Portfolio website" : "Сайт-портфоліо"),
+      name,
+      email,
+      company,
+      topic,
       message,
-    ];
-    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-    window.location.href = mailto;
+      botcheck: "",
+    };
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setStatus("success");
+        setName(""); setEmail(""); setCompany(""); setTopic(t.topics[0]); setMessage("");
+      } else {
+        setStatus("error");
+        setErrorMsg(data.message || (lang === "en" ? "Submission failed" : "Не вдалося надіслати"));
+      }
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(lang === "en" ? "Network error. Please try again." : "Помилка мережі. Спробуйте ще раз.");
+    }
   };
+
+  const successText = lang === "en"
+    ? "Message sent. I'll reply soon."
+    : "Повідомлення надіслано. Я скоро відповім.";
+  const sendingText = lang === "en" ? "Sending…" : "Надсилаю…";
 
   return (
     <main>
@@ -1334,6 +1357,7 @@ function ContactPage({ lang }) {
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-text-faint)", letterSpacing: ".06em", textTransform: "uppercase" }}>
               {t.formTitle}
             </div>
+            <input type="checkbox" name="botcheck" tabIndex="-1" autoComplete="off" style={{ display: "none" }} />
             <div className="field-row">
               <div className="field">
                 <label>{t.labels.name}</label>
@@ -1362,11 +1386,21 @@ function ContactPage({ lang }) {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-text-faint)" }}>
                 {lang === "en" ? "Or just email — same thing." : "Або просто email — те саме."}
               </span>
-              <button className="button button-primary" type="submit">
-                {t.labels.send}
+              <button className="button button-primary" type="submit" disabled={status === "sending"}>
+                {status === "sending" ? sendingText : t.labels.send}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
               </button>
             </div>
+            {status === "success" && (
+              <div role="status" style={{ marginTop: 12, fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--color-accent, #2a7)" }}>
+                {successText}
+              </div>
+            )}
+            {status === "error" && (
+              <div role="alert" style={{ marginTop: 12, fontFamily: "var(--font-mono)", fontSize: 13, color: "#c33" }}>
+                {errorMsg}
+              </div>
+            )}
           </form>
 
           <div className="contact-direct">
