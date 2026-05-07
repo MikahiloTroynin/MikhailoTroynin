@@ -80,11 +80,11 @@ const HOME_STRATEGY = {
       eyebrow: "Stack",
       title: "Tools and sources I work with",
       groups: [
-        { label: "Strategy", items: ["Docs audit", "IA", "Roadmaps", "Style guide"] },
-        { label: "Sources", items: ["Source code", "OpenAPI", "README", "Jira", "SME notes"] },
-        { label: "Delivery", items: ["Markdown", "Git", "GitHub Pages", "Confluence"] },
-        { label: "API / SDK", items: ["REST", "Swagger", "Postman", "DTOs"] },
-        { label: "AI / QA", items: ["ChatGPT", "ampcode", "MCP", "Validation checklist"] }
+        { label: "Strategy", items: ["Docs audit", "IA", "Roadmaps", "Style guide", "Templates"] },
+        { label: "Sources", items: ["Source code", "OpenAPI", "README", "Jira", "GitLab", "Confluence", "Slack threads"] },
+        { label: "Delivery", items: ["Markdown", "Git", "GitHub Pages", "Confluence", "MR review", "Impact Log"] },
+        { label: "API / SDK", items: ["REST", "Swagger", "Postman", "DTOs", "OpenAPI 3.0", "YAML"] },
+        { label: "AI / QA", items: ["Claude Code", "ampcode", "Gemini", "Qwen", "Kimi", "MCP", "CLARIFY"] }
       ]
     },
     finalCta: {
@@ -171,11 +171,11 @@ const HOME_STRATEGY = {
       eyebrow: "Stack",
       title: "Tools і sources, з якими працюю",
       groups: [
-        { label: "Strategy", items: ["Docs audit", "IA", "Roadmaps", "Style guide"] },
-        { label: "Sources", items: ["Source code", "OpenAPI", "README", "Jira", "SME notes"] },
-        { label: "Delivery", items: ["Markdown", "Git", "GitHub Pages", "Confluence"] },
-        { label: "API / SDK", items: ["REST", "Swagger", "Postman", "DTOs"] },
-        { label: "AI / QA", items: ["ChatGPT", "ampcode", "MCP", "Validation checklist"] }
+        { label: "Strategy", items: ["Docs audit", "IA", "Roadmaps", "Style guide", "Templates"] },
+        { label: "Sources", items: ["Source code", "OpenAPI", "README", "Jira", "GitLab", "Confluence", "Slack threads"] },
+        { label: "Delivery", items: ["Markdown", "Git", "GitHub Pages", "Confluence", "MR review", "Impact Log"] },
+        { label: "API / SDK", items: ["REST", "Swagger", "Postman", "DTOs", "OpenAPI 3.0", "YAML"] },
+        { label: "AI / QA", items: ["Claude Code", "ampcode", "Gemini", "Qwen", "Kimi", "MCP", "CLARIFY"] }
       ]
     },
     finalCta: {
