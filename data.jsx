@@ -6,7 +6,7 @@ window.I18N = {
       eyebrow: 'AI Technical Writing',
       lede: 'I create developer documentation from code and product context.',
       ctaPrimary: 'View work', ctaSecondary: 'Workflow',
-      meta: [{ k: 'Focus', v: 'API Gateway docs' }, { k: 'Format', v: 'Docs-as-code' }]
+      meta: [{ k: 'Focus', v: 'Developer docs' }, { k: 'Format', v: 'Docs-as-code' }]
     },
     whatIDocument: {
       title: 'What I document',
@@ -21,7 +21,7 @@ window.I18N = {
       ]
     },
     featured: { title: 'Featured samples', subtitle: 'Selected portfolio pieces.', viewAll: 'All samples' },
-    workflow: { title: 'API Gateway documentation process', subtitle: 'A Git-based ampcode flow for documenting API Gateway routes by module.', cta: 'Open workflow' },
+    workflow: { title: 'AI-assisted documentation workflow', subtitle: 'A repeatable, Git-based AI flow for documenting any product feature, module, or codebase area.', cta: 'Open workflow' },
     tools: {
       title: 'Tooling',
       groups: [
@@ -44,33 +44,34 @@ window.I18N = {
 
     // ── Workflow page (full structure expected by WorkflowPage component) ──
     workflowPage: {
-      title: 'API Gateway route documentation workflow',
-      lede: 'A specialized ampcode workflow for documenting API Gateway routes by module: codebase mapping, CLARIFY questions for SMEs, document generation from a V.4 template, verification, and publication in Git.',
+      title: 'AI-assisted documentation workflow',
+      lede: 'A repeatable, Git-based AI workflow for documenting any product feature, module, or codebase area: source discovery, codebase mapping, CLARIFY questions for SMEs, AI-assisted draft from an agreed template, technical validation against the source, and publication through PR review.',
       tocTitle: 'On this page',
       principles: {
         title: 'Operating principles',
         items: [
-          { k: 'Map before documenting', v: 'ampcode first builds a code navigation index: route files, modules, Action classes, clients, configuration, middleware, and authorization guards.' },
-          { k: 'Interview before generation', v: 'Before drafting, ampcode analyzes code and Jira context, creates a CLARIFY file, and asks closed SME questions with fallback assumptions.' },
-          { k: 'Human in the loop', v: 'Every generated module document is checked by the technical writer before commit. Unverified facts stay marked with a warning.' },
+          { k: 'Map before documenting', v: 'Before any prose, the AI builds a navigation index of the feature: source files, modules, public interfaces, data flows, configuration, and integration points.' },
+          { k: 'Interview before generation', v: 'After scanning code and tickets, the AI creates a CLARIFY file with closed questions for the subject-matter expert and explicit fallback assumptions for unanswered items.' },
+          { k: 'Source-anchored claims', v: 'Every technical statement in the final document is traceable to a source — a code line, a test, a spec, a configuration file, or a recorded SME answer.' },
+          { k: 'Human in the loop', v: 'Every AI-generated section is reviewed by the technical writer before commit. Unverified facts stay marked with a visible warning instead of being silently published.' },
         ]
       },
       checklist: {
         title: 'Verification checklist',
         items: [
-          'Every documented route URL, HTTP method, channel, middleware, and Action class exists in the source code.',
-          'The module document follows AG-Draft_Module_Template_V4.md and covers all required sections.',
-          'Request parameters are checked against FormRequest, Request DTOs, validation rules, and glossary entries.',
-          'Response structure is checked against Response DTOs, return values, and exception handling.',
-          'Proxy chain is verified: Action → Service → Client, raw pass-through, or orchestration with multiple clients.',
-          'Feature flags, disabled_routes, environments, DI bindings, Graylog context, and external integrations are verified.',
-          'All SME answers from the CLARIFY file are applied; unanswered questions use fallback with a warning marker.',
-          'Mermaid sequence diagram renders correctly and reflects the real route-processing flow.',
-          'AG-Endpoints_Registry.md and Documentation_Updates_Log.md are updated after publication.',
+          'Every documented entity (function, endpoint, parameter, event, component, configuration key) exists in the source code or configuration.',
+          'The document follows the agreed documentation template and fills every required section.',
+          'Inputs are verified against type definitions, validation rules, and the project glossary.',
+          'Outputs and side effects are verified against return types, exception handling, and observable behavior.',
+          'Dependencies and external integrations described in the document are actually invoked by the code.',
+          'Feature flags, environment-specific behavior, access controls, and observability hooks are verified.',
+          'All SME answers from the CLARIFY file are applied; unanswered questions use a fallback marked with a visible warning.',
+          'Embedded diagrams render correctly and reflect the real flow recovered from the code.',
+          'The relevant index, registry, or changelog is updated after publication.',
         ]
       },
       prompts: {
-        title: 'Example ampcode prompts',
+        title: 'Example AI prompts',
       },
     },
 
@@ -163,7 +164,7 @@ window.I18N = {
       eyebrow: 'AI Technical Writing',
       lede: 'Створюю документацію для розробників на основі коду та продуктового контексту.',
       ctaPrimary: 'Дивитися роботи', ctaSecondary: 'Процес',
-      meta: [{ k: 'Фокус', v: 'API Gateway docs' }, { k: 'Формат', v: 'Docs-as-code' }]
+      meta: [{ k: 'Фокус', v: 'Developer docs' }, { k: 'Формат', v: 'Docs-as-code' }]
     },
     whatIDocument: {
       title: 'Що документую',
@@ -178,7 +179,7 @@ window.I18N = {
       ]
     },
     featured: { title: 'Обрані приклади', subtitle: 'Кейси з портфоліо.', viewAll: 'Усі приклади' },
-    workflow: { title: 'Процес документування API Gateway', subtitle: 'Git-based ampcode flow для документування роутів API Gateway по модулях.', cta: 'Відкрити процес' },
+    workflow: { title: 'AI-assisted документаційний workflow', subtitle: 'Повторюваний Git-based AI flow для документування будь-якої фічі продукту, модуля або ділянки кодової бази.', cta: 'Відкрити процес' },
     tools: {
       title: 'Інструменти',
       groups: [
@@ -201,33 +202,34 @@ window.I18N = {
 
     // ── Workflow page (full structure) ──
     workflowPage: {
-      title: 'Єдиний flow документування роутів API Gateway',
-      lede: 'Спеціалізований ampcode workflow для опису роутів API Gateway по модулях: розвідка кодової бази, CLARIFY-питання до SME, генерація документа за шаблоном V.4, верифікація та публікація в Git.',
+      title: 'AI-assisted документаційний workflow',
+      lede: 'Повторюваний Git-based AI workflow для документування будь-якої фічі продукту, модуля або ділянки кодової бази: розвідка джерел, мапування коду, CLARIFY-питання до SME, AI-assisted draft за погодженим шаблоном, технічна валідація проти source code і публікація через PR review.',
       tocTitle: 'На цій сторінці',
       principles: {
         title: 'Робочі принципи',
         items: [
-          { k: 'Map before documenting', v: 'Перед генерацією ampcode створює навігаційний індекс коду: route-файли, модулі, Action-класи, clients, config, middleware та auth guards.' },
-          { k: 'Інтерв\u2019ю перед генерацією', v: 'Після аналізу коду та Jira ampcode створює CLARIFY-файл із закритими питаннями до SME, fallback-припущеннями та готовим prompt для нового треду.' },
-          { k: 'Human-in-the-loop', v: 'Кожен згенерований документ перевіряється техрайтером перед commit. Усе непідтверджене залишається з маркером попередження.' },
+          { k: 'Map before documenting', v: 'Перед будь-яким текстом AI створює навігаційний індекс фічі: source-файли, модулі, публічні інтерфейси, потоки даних, config та точки інтеграції.' },
+          { k: 'Інтерв\u2019ю перед генерацією', v: 'Після аналізу коду та тикетів AI створює CLARIFY-файл із закритими питаннями до SME та явними fallback-припущеннями для пунктів без відповіді.' },
+          { k: 'Source-anchored claims', v: 'Кожне технічне твердження у фінальному документі прослідковується до джерела — рядка коду, тесту, специфікації, config-файлу або зафіксованої відповіді SME.' },
+          { k: 'Human-in-the-loop', v: 'Кожна AI-згенерована секція переглядається техрайтером перед commit. Непідтверджені факти лишаються з видимим warning-маркером, а не публікуються мовчки.' },
         ]
       },
       checklist: {
         title: 'Чекліст верифікації',
         items: [
-          'Кожен Route URL, HTTP method, channel, middleware та Action class існує в source code.',
-          'Документ модуля відповідає AG-Draft_Module_Template_V4.md і заповнює всі потрібні секції.',
-          'Request parameters перевірені через FormRequest, Request DTOs, validation rules та glossary.',
-          'Response structure перевірена через Response DTOs, return values та exception handling.',
-          'Proxy chain перевірений: Action → Service → Client, raw pass-through або orchestration з кількома clients.',
-          'Feature flags, disabled_routes, environments, DI bindings, Graylog context та external integrations перевірені.',
-          'Відповіді SME з CLARIFY-файлу враховані; питання без відповіді використовують fallback із warning marker.',
-          'Mermaid sequence diagram коректно рендериться і відображає реальний route-processing flow.',
-          'AG-Endpoints_Registry.md та Documentation_Updates_Log.md оновлені після публікації.',
+          'Кожна задокументована сутність (функція, endpoint, параметр, подія, компонент, config-ключ) існує у source code або конфігурації.',
+          'Документ відповідає погодженому шаблону документації і заповнює всі обов’язкові секції.',
+          'Inputs перевірені проти type definitions, validation rules і проєктного glossary.',
+          'Outputs і side effects перевірені проти return types, exception handling і спостережуваної поведінки.',
+          'Залежності та зовнішні інтеграції, описані в документі, реально викликаються кодом.',
+          'Feature flags, environment-specific поведінка, access controls і observability-хуки перевірені.',
+          'Відповіді SME з CLARIFY-файлу враховані; питання без відповіді використовують fallback із видимим warning-маркером.',
+          'Вбудовані діаграми коректно рендеряться і відображають реальний flow, відновлений із коду.',
+          'Відповідний index, registry або changelog оновлено після публікації.',
         ]
       },
       prompts: {
-        title: 'Приклади prompt-ів для ampcode',
+        title: 'Приклади AI-промптів',
       },
     },
 

@@ -53,7 +53,7 @@ const HOME_STRATEGY = {
         { num: "01", title: "API & SDK documentation", body: "REST API references and SDK docs for 25+ projects. Validated against OpenAPI specs and real API responses, not guessed." },
         { num: "02", title: "Codebase documentation", body: "Architecture docs for 15+ microservices. Module references, data flows, and component responsibilities mapped from source code." },
         { num: "03", title: "Developer onboarding", body: "Onboarding docs for platforms with 40M+ users — FHIR, eHealth, fintech. Setup guides that cut ramp time by 40%." },
-        { num: "04", title: "Internal engineering docs", body: "Confluence structures, API Gateway route docs, deployment checklists, and runbooks for enterprise engineering teams." },
+        { num: "04", title: "Internal engineering docs", body: "Confluence structures, module references, deployment checklists, and runbooks for enterprise engineering teams." },
         { num: "05", title: "AI documentation workflow", body: "Claude Code, 5 MCP servers, 15+ custom skills. Hallucination prevention built into every step of the workflow." },
         { num: "06", title: "Documentation strategy & audit", body: "Gap analysis, IA design, style guides, and roadmaps for teams that outgrew scattered wikis and README files." }
       ]
@@ -63,11 +63,12 @@ const HOME_STRATEGY = {
       title: "AI-assisted, human-validated, docs-as-code ready",
       subtitle: "The goal is not to make AI write more text. The goal is to make documentation faster to produce, easier to verify, and safer to maintain.",
       steps: [
-        { num: "01", title: "Map the system", body: "Identify audiences, source files, APIs, modules, existing docs, owners, and update triggers.", kind: "input" },
+        { num: "01", title: "Map the system", body: "Identify audiences, source files, public interfaces, modules, existing docs, owners, and update triggers.", kind: "input" },
         { num: "02", title: "Create the structure", body: "Define the information architecture, templates, glossary, style rules, and review checklist.", kind: "input" },
-        { num: "03", title: "Draft with AI", body: "Use AI to summarize code, compare sources, generate outlines, and produce first drafts as hypotheses.", kind: "ai", badge: "AI" },
-        { num: "04", title: "Validate facts", body: "Check endpoints, parameters, DTOs, status codes, examples, configuration, and edge cases against source code.", kind: "validate", badge: "VALIDATE" },
-        { num: "05", title: "Publish and maintain", body: "Ship through Markdown, Git, PR review, Confluence, GitHub Pages, update logs, and recurring docs audits.", kind: "input" }
+        { num: "03", title: "Interview SMEs (CLARIFY)", body: "Generate a CLARIFY file with closed questions for the subject-matter expert and explicit fallback assumptions for unanswered items.", kind: "input" },
+        { num: "04", title: "Draft with AI", body: "Use AI to summarize code, compare sources, generate outlines, and produce first drafts as hypotheses anchored to the source.", kind: "ai", badge: "AI" },
+        { num: "05", title: "Validate facts", body: "Check every claim — entities, parameters, types, status codes, examples, configuration, edge cases — against source code or recorded SME answers.", kind: "validate", badge: "VALIDATE" },
+        { num: "06", title: "Publish and maintain", body: "Ship through Markdown, Git, PR review, Confluence, GitHub Pages, update logs, and recurring docs audits.", kind: "input" }
       ]
     },
     samples: {
@@ -144,7 +145,7 @@ const HOME_STRATEGY = {
         { num: "01", title: "API & SDK documentation", body: "REST API references і SDK docs для 25+ проєктів. Валідовано по OpenAPI specs і реальних API responses — без додумування." },
         { num: "02", title: "Codebase documentation", body: "Архітектурні docs для 15+ мікросервісів. Module references, data flows і відповідальності компонентів із source code." },
         { num: "03", title: "Developer onboarding", body: "Onboarding docs для платформ з 40M+ користувачів — FHIR, eHealth, fintech. Setup guides, що скорочують onboarding на 40%." },
-        { num: "04", title: "Internal engineering docs", body: "Confluence structures, API Gateway route docs, deployment checklists і runbooks для enterprise інженерних команд." },
+        { num: "04", title: "Internal engineering docs", body: "Confluence structures, module references, deployment checklists і runbooks для enterprise інженерних команд." },
         { num: "05", title: "AI documentation workflow", body: "Claude Code, 5 MCP серверів, 15+ власних скілів. Hallucination prevention вбудований у кожен крок workflow." },
         { num: "06", title: "Documentation strategy & audit", body: "Gap analysis, IA-дизайн, style guides і roadmaps для команд, що переросли розкидані wiki та README файли." }
       ]
@@ -154,11 +155,12 @@ const HOME_STRATEGY = {
       title: "AI-assisted, human-validated, docs-as-code ready",
       subtitle: "Мета не в тому, щоб AI писав більше тексту. Мета — швидше створювати docs, легше їх перевіряти і безпечніше підтримувати.",
       steps: [
-        { num: "01", title: "Map the system", body: "Визначаю audiences, source files, APIs, modules, existing docs, owners і update triggers.", kind: "input" },
+        { num: "01", title: "Map the system", body: "Визначаю audiences, source files, публічні інтерфейси, modules, existing docs, owners і update triggers.", kind: "input" },
         { num: "02", title: "Create the structure", body: "Проєктую information architecture, templates, glossary, style rules і review checklist.", kind: "input" },
-        { num: "03", title: "Draft with AI", body: "Використовую AI для summaries, порівняння sources, outlines і first drafts як hypotheses.", kind: "ai", badge: "AI" },
-        { num: "04", title: "Validate facts", body: "Перевіряю endpoints, parameters, DTOs, status codes, examples, configuration і edge cases проти source code.", kind: "validate", badge: "VALIDATE" },
-        { num: "05", title: "Publish and maintain", body: "Публікую через Markdown, Git, PR review, Confluence, GitHub Pages, update logs і регулярні docs audits.", kind: "input" }
+        { num: "03", title: "Interview SMEs (CLARIFY)", body: "Генерую CLARIFY-файл із закритими питаннями до SME та явними fallback-припущеннями для пунктів без відповіді.", kind: "input" },
+        { num: "04", title: "Draft with AI", body: "Використовую AI для summaries, порівняння sources, outlines і first drafts як hypotheses, прив’язаних до джерел.", kind: "ai", badge: "AI" },
+        { num: "05", title: "Validate facts", body: "Перевіряю кожне твердження — сутності, parameters, типи, status codes, examples, configuration, edge cases — проти source code або зафіксованих відповідей SME.", kind: "validate", badge: "VALIDATE" },
+        { num: "06", title: "Publish and maintain", body: "Публікую через Markdown, Git, PR review, Confluence, GitHub Pages, update logs і регулярні docs audits.", kind: "input" }
       ]
     },
     samples: {
