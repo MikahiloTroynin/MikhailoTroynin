@@ -26,13 +26,13 @@ const HOME_STRATEGY = {
       ]
     },
     panel: {
-      title: "Documentation operating model",
+      title: "Trust contract for every doc",
       rows: [
-        { k: "01 / diagnose", v: "Audit docs, code sources, gaps, owners, and review paths." },
-        { k: "02 / design", v: "Create IA, templates, style rules, and update workflow." },
-        { k: "03 / produce", v: "Generate drafts from code, OpenAPI, tickets, and SME notes." },
-        { k: "04 / validate", v: "Check every technical claim against source code or SME feedback." },
-        { k: "05 / maintain", v: "Ship through Git, PR review, changelog, and reusable checklists." }
+        { k: "source", v: "Only source code, OpenAPI specs, and recorded SME answers." },
+        { k: "no-guess", v: "Unknowns become CLARIFY questions, never silent assumptions." },
+        { k: "trace", v: "Every fact links back to file:line or a quoted SME response." },
+        { k: "review", v: "Docs ship via PR with diff, reviewer, and changelog entry." },
+        { k: "refresh", v: "Audits triggered by code, API, or schema changes — not calendars." }
       ]
     },
     problem: {
@@ -118,13 +118,13 @@ const HOME_STRATEGY = {
       ]
     },
     panel: {
-      title: "Documentation operating model",
+      title: "Trust contract для кожного документа",
       rows: [
-        { k: "01 / diagnose", v: "Audit docs, code sources, gaps, owners і review paths." },
-        { k: "02 / design", v: "Information architecture, templates, style rules і update workflow." },
-        { k: "03 / produce", v: "Drafts із code, OpenAPI, tickets і SME notes." },
-        { k: "04 / validate", v: "Кожне technical claim перевіряється по source code або SME feedback." },
-        { k: "05 / maintain", v: "Git, PR review, changelog і reusable checklists." }
+        { k: "source", v: "Лише source code, OpenAPI specs і зафіксовані відповіді SME." },
+        { k: "no-guess", v: "Невідоме стає CLARIFY-питанням, а не тихим припущенням." },
+        { k: "trace", v: "Кожен факт лінкується на file:line або цитату SME." },
+        { k: "review", v: "Docs виходять через PR з diff, reviewer і changelog-записом." },
+        { k: "refresh", v: "Аудит тригериться змінами коду, API чи schema — не календарем." }
       ]
     },
     problem: {
