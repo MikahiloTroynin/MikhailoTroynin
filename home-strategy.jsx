@@ -35,6 +35,16 @@ const HOME_STRATEGY = {
         { k: "refresh", v: "Audits triggered by code, API, or schema changes — not calendars." }
       ]
     },
+    reviewPanel: {
+      title: "Review checklist for every PR",
+      rows: [
+        { k: "pr-template", v: "Every PR includes diff, assigned reviewer, test plan, and changelog entry." },
+        { k: "check-source", v: "Validate every fact against file:line reference or quoted SME response." },
+        { k: "block-on", v: "Hallucinated parameters, missing types, broken examples, or unowned sections." },
+        { k: "approve-when", v: "Source links resolve, examples run end-to-end, and the owner signs off." },
+        { k: "post-merge", v: "Update changelog, notify SMEs, and schedule the next audit trigger." }
+      ]
+    },
     problem: {
       eyebrow: "Problem I solve",
       title: "Engineering teams do not need more random pages. They need a documentation system.",
@@ -127,6 +137,16 @@ const HOME_STRATEGY = {
         { k: "refresh", v: "Аудит тригериться змінами коду, API чи schema — не календарем." }
       ]
     },
+    reviewPanel: {
+      title: "Review checklist для кожного PR",
+      rows: [
+        { k: "pr-template", v: "Кожен PR містить diff, призначеного reviewer, test plan і запис у changelog." },
+        { k: "check-source", v: "Перевіряємо кожен факт по file:line або цитаті SME." },
+        { k: "block-on", v: "Вигадані параметри, відсутні типи, зламані приклади або безхозні розділи." },
+        { k: "approve-when", v: "Лінки на джерела робочі, приклади запускаються end-to-end, owner підтверджує." },
+        { k: "post-merge", v: "Оновлюємо changelog, повідомляємо SME і плануємо наступний audit-тригер." }
+      ]
+    },
     problem: {
       eyebrow: "Проблема, яку вирішую",
       title: "Інженерним командам потрібні не випадкові сторінки, а documentation system.",
@@ -209,21 +229,31 @@ function ImpactSection({ data }) {
   );
 }
 
-function StrategyPanel({ data }) {
+function StrategyPanel({ data, reviewData }) {
+  const [tab, setTab] = React.useState("strategy");
+  const active = tab === "review" && reviewData ? reviewData : data;
   return (
     <div className="code-panel" role="img" aria-label="Documentation strategy model">
       <div className="code-panel-header">
         <div className="dot-row"><span className="dot"/><span className="dot"/><span className="dot"/></div>
         <div className="code-panel-tabs">
-          <button className="code-panel-tab is-active">strategy.md</button>
-          <button className="code-panel-tab">review.yml</button>
+          <button
+            type="button"
+            className={"code-panel-tab" + (tab === "strategy" ? " is-active" : "")}
+            onClick={() => setTab("strategy")}
+          >strategy.md</button>
+          <button
+            type="button"
+            className={"code-panel-tab" + (tab === "review" ? " is-active" : "")}
+            onClick={() => setTab("review")}
+          >review.yml</button>
         </div>
         <div className="code-panel-meta">docs operating model</div>
       </div>
       <div className="code-panel-body">
         <pre style={{ whiteSpace: "pre-wrap" }}>
-          <div><span className="tk-comment"># {data.title}</span>{"\n"}</div>
-          {data.rows.map((row) => (
+          <div><span className="tk-comment"># {active.title}</span>{"\n"}</div>
+          {active.rows.map((row) => (
             <div key={row.k} style={{ marginTop: 8 }}>
               <span className="tk-key">{row.k}</span>{"\n"}
               <span className="tk-str">  {row.v}</span>{"\n"}
@@ -305,7 +335,7 @@ function HomePage({ lang }) {
             </div>
           </div>
           <div className="rise" style={{ animationDelay: "120ms", paddingTop: "38px" }}>
-            <StrategyPanel data={data.panel}/>
+            <StrategyPanel data={data.panel} reviewData={data.reviewPanel}/>
           </div>
         </div>
       </section>
