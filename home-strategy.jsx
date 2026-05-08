@@ -155,12 +155,12 @@ const HOME_STRATEGY = {
       title: "AI-assisted, human-validated, docs-as-code ready",
       subtitle: "Мета не в тому, щоб AI писав більше тексту. Мета — швидше створювати docs, легше їх перевіряти і безпечніше підтримувати.",
       steps: [
-        { num: "01", title: "Map the system", body: "Визначаю audiences, source files, публічні інтерфейси, modules, existing docs, owners і update triggers.", kind: "input" },
-        { num: "02", title: "Create the structure", body: "Проєктую information architecture, templates, glossary, style rules і review checklist.", kind: "input" },
-        { num: "03", title: "Interview SMEs (CLARIFY)", body: "Генерую CLARIFY-файл із закритими питаннями до SME та явними fallback-припущеннями для пунктів без відповіді.", kind: "input" },
-        { num: "04", title: "Draft with AI", body: "Використовую AI для summaries, порівняння sources, outlines і first drafts як hypotheses, прив’язаних до джерел.", kind: "ai", badge: "AI" },
-        { num: "05", title: "Validate facts", body: "Перевіряю кожне твердження — сутності, parameters, типи, status codes, examples, configuration, edge cases — проти source code або зафіксованих відповідей SME.", kind: "validate", badge: "VALIDATE" },
-        { num: "06", title: "Publish and maintain", body: "Публікую через Markdown, Git, PR review, Confluence, GitHub Pages, update logs і регулярні docs audits.", kind: "input" }
+        { num: "01", title: "Досліджую систему", body: "Визначаю audiences, source files, публічні інтерфейси, modules, existing docs, owners і update triggers.", kind: "input" },
+        { num: "02", title: "Створюю структуру", body: "Проєктую information architecture, templates, glossary, style rules і review checklist.", kind: "input" },
+        { num: "03", title: "Опитую SME (CLARIFY)", body: "Генерую CLARIFY-файл із закритими питаннями до SME та явними fallback-припущеннями для пунктів без відповіді.", kind: "input" },
+        { num: "04", title: "Генерую чернетки з AI", body: "Використовую AI для summaries, порівняння sources, outlines і first drafts як hypotheses, прив’язаних до джерел.", kind: "ai", badge: "AI" },
+        { num: "05", title: "Перевіряю факти", body: "Перевіряю кожне твердження — сутності, parameters, типи, status codes, examples, configuration, edge cases — проти source code або зафіксованих відповідей SME.", kind: "validate", badge: "VALIDATE" },
+        { num: "06", title: "Публікую і підтримую", body: "Публікую через Markdown, Git, PR review, Confluence, GitHub Pages, update logs і регулярні docs audits.", kind: "input" }
       ]
     },
     samples: {
