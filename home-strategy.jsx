@@ -6,7 +6,7 @@ const HOME_STRATEGY = {
   en: {
     eyebrow: "AI Product Documentation Strategist",
     heroTitle: <>I design <em>AI documentation systems</em> for engineering teams.</>,
-    lede: "7 years in tech writing, 2 with AI. I help engineering teams ship API references, SDK docs, and onboarding developers trust — 5× faster with AI, validated against source code.",
+    lede: "7 years in tech writing, 3 with AI. I help engineering teams ship API references, SDK docs, and onboarding developers trust — 5× faster with AI, validated against source code.",
     ctaPrimary: "View work samples",
     ctaSecondary: "See AI workflow",
     meta: [
@@ -108,7 +108,7 @@ const HOME_STRATEGY = {
   ua: {
     eyebrow: "AI Product Documentation Strategist",
     heroTitle: <>Проєктую <em>AI documentation systems</em> для інженерних команд.</>,
-    lede: "7 років у technical writing, 2 з AI. Допомагаю інженерним командам публікувати API references, SDK docs і onboarding, яким довіряють розробники — у 5× швидше з AI, валідовано по source code.",
+    lede: "7 років у technical writing, 3 з AI. Допомагаю інженерним командам публікувати API references, SDK docs і onboarding, яким довіряють розробники — у 5× швидше з AI, валідовано по source code.",
     ctaPrimary: "Дивитися приклади",
     ctaSecondary: "Дивитися AI workflow",
     meta: [

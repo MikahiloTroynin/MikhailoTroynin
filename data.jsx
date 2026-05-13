@@ -81,7 +81,7 @@ window.I18N = {
       sidebarRole: 'AI Product Documentation Strategist',
       sidebarEmail: 'mihajlotrojnin@gmail.com',
       sidebarLocation: 'Kyiv, Ukraine (remote, US + EU time zones)',
-      bio: 'AI Product Documentation Strategist with 7+ years of experience in technical documentation and 2+ years of active AI tool adoption in documentation workflows. Created 100+ documents using AI-assisted workflows, developed 15+ custom AI skills for documentation tasks, and achieved 5x+ faster documentation delivery compared to the traditional process.',
+      bio: 'AI Product Documentation Strategist with 7+ years of experience in technical documentation and 3+ years of active AI tool adoption in documentation workflows. Created 100+ documents using AI-assisted workflows, developed 15+ custom AI skills for documentation tasks, and achieved 5x+ faster documentation delivery compared to the traditional process.',
       bio2: 'I specialize in full-cycle AI documentation systems: from codebase exploration through MCP server setup and AI agent configuration to automated draft generation and technical validation. Hands-on experience with Claude Code, AMP Code, Cursor, and Codex. Deep understanding of strengths and limitations across Claude, Gemini, ChatGPT, Qwen, and Kimi models.',
       metricsTitle: 'Key metrics',
       metrics: [
@@ -239,7 +239,7 @@ window.I18N = {
       sidebarRole: 'AI Product Documentation Strategist',
       sidebarEmail: 'mihajlotrojnin@gmail.com',
       sidebarLocation: 'Київ, Україна (remote, US + EU таймзони)',
-      bio: 'AI Product Documentation Strategist із 7+ роками досвіду в технічній документації та 2+ роками активного впровадження AI-інструментів у документаційні процеси. Створив 100+ документів за допомогою AI-assisted workflow, розробив 15+ власних AI-скілів для документаційних задач і досяг прискорення створення документації у 5x+ порівняно з традиційним підходом.',
+      bio: 'AI Product Documentation Strategist із 7+ роками досвіду в технічній документації та 3+ роками активного впровадження AI-інструментів у документаційні процеси. Створив 100+ документів за допомогою AI-assisted workflow, розробив 15+ власних AI-скілів для документаційних задач і досяг прискорення створення документації у 5x+ порівняно з традиційним підходом.',
       bio2: 'Спеціалізація \u2014 побудова повного циклу AI-документації: від розвідки кодової бази через налаштування MCP-серверів і конфігурацію AI-агентів до автоматизованої генерації драфтів та технічної валідації. Практичний досвід з Claude Code, AMP Code, Cursor і Codex. Глибоке розуміння сильних і слабких сторін моделей Claude, Gemini, ChatGPT, Qwen, Kimi.',
       metricsTitle: 'Ключові метрики',
       metrics: [
