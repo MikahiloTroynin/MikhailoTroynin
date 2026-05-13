@@ -127,7 +127,7 @@ window.I18N = {
       languagesTitle: 'Languages',
       languages: [
         { lang: 'Ukrainian', level: 'Native' },
-        { lang: 'English', level: 'Upper-Intermediate (B2)' },
+        { lang: 'English', level: 'Advanced (C1)' },
         { lang: 'German', level: 'Intermediate' },
       ],
     },
@@ -285,7 +285,7 @@ window.I18N = {
       languagesTitle: 'Мови',
       languages: [
         { lang: 'Українська', level: 'Рідна' },
-        { lang: 'Англійська', level: 'Upper-Intermediate (B2)' },
+        { lang: 'Англійська', level: 'Advanced (C1)' },
         { lang: 'Німецька', level: 'Intermediate' },
       ],
     },
